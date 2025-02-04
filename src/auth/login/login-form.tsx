@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,22 +16,22 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  remember: z.boolean().default(false),
-});
+import { loginSchema } from './login-schema';
+import { useLogin } from './use-login';
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [remember, setRemember] = useLocalStorage('remember', false);
+  const { login } = useLogin();
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
-      remember: false,
+      remember: remember,
     },
   });
 
@@ -40,10 +39,6 @@ export function LoginForm() {
   const isError = Boolean(
     form.formState.errors.email || form.formState.errors.password
   );
-
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
-  };
 
   return (
     <React.Fragment>
@@ -53,7 +48,7 @@ export function LoginForm() {
         Enter your email address and password to access your account.
       </p>
       <Form {...form}>
-        <form className="my-6" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="my-6" onSubmit={form.handleSubmit(login)}>
           <div className="flex flex-col space-y-4">
             <FormField
               control={form.control}
@@ -107,7 +102,10 @@ export function LoginForm() {
                   <FormControl>
                     <Checkbox
                       checked={field.value}
-                      onCheckedChange={field.onChange}
+                      onCheckedChange={(value) => {
+                        setRemember(value === true);
+                        field.onChange(value);
+                      }}
                     />
                   </FormControl>
                   <FormLabel className="">Remember me</FormLabel>

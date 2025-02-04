@@ -5,6 +5,12 @@ import { Link } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
 
+const navLinks = [
+  { name: 'Home', href: '/' },
+  { name: 'Profile', href: '/profile' },
+  { name: 'Preference', href: '/preference' },
+];
+
 export function Navbar() {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
@@ -17,15 +23,15 @@ export function Navbar() {
             <Logo />
           </div>
           <div className="hidden lg:block">
-            <Link to="/auth/login" className="text-base font-medium">
-              Login
-            </Link>
-            <Link to="/auth/register" className="ml-4 text-base font-medium">
-              Register
-            </Link>
-            <Link to="/preference" className="ml-4 text-base font-medium">
-              Preference
-            </Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.href}
+                className="text-base font-medium"
+              >
+                {link.name}
+              </Link>
+            ))}
           </div>
           <UserProfile />
         </div>
@@ -53,15 +59,15 @@ export function MobileNavbar() {
         )}
       >
         <div className="flex h-full flex-col gap-4 px-6 py-8">
-          <Link to="/auth/login" className="text-base font-medium">
-            Login
-          </Link>
-          <Link to="/auth/register" className="text-base font-medium">
-            Register
-          </Link>
-          <Link to="/preference" className="text-base font-medium">
-            Preference
-          </Link>
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.href}
+              className="text-base font-medium"
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
       </div>
     </div>
@@ -69,10 +75,15 @@ export function MobileNavbar() {
 }
 
 export function Logo() {
+  const isMobile = useMediaQuery('(max-width: 768px)');
   return (
     <Link to="/" className="flex items-center">
       <FlameIcon className="mr-2 h-8 w-8" />
-      <span className="text-xl font-bold">Profile Match</span>
+      <span
+        className={cn('text-xl font-bold', { 'hidden md:block': isMobile })}
+      >
+        Lisa's Friend
+      </span>
     </Link>
   );
 }
@@ -86,14 +97,6 @@ function UserProfile() {
           src="https://www.gravatar.com/avatar/"
           alt=""
         />
-      </div>
-      <div className="ml-3">
-        <Link
-          to="/profile"
-          className="text-base font-medium text-indigo-300 hover:text-white"
-        >
-          Tom Cook
-        </Link>
       </div>
     </div>
   );

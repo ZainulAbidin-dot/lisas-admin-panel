@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { z } from 'zod';
 
+import { PhoneInput } from '@/components/composed/phone-input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -18,28 +18,21 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-const loginSchema = z
-  .object({
-    fullName: z.string().min(2),
-    email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
-    acceptTerms: z.boolean().default(false),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+import { registerSchema } from './register-schema';
+import { useRegister } from './use-register';
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const { register } = useRegister();
 
   const form = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
-      fullName: '',
+      firstName: '',
+      lastName: '',
       email: '',
+      phoneNumber: '',
       password: '',
       confirmPassword: '',
       acceptTerms: false,
@@ -51,9 +44,7 @@ export function RegisterForm() {
     form.formState.errors.email || form.formState.errors.password
   );
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
-  };
+  console.log(form.watch('phoneNumber'));
 
   return (
     <React.Fragment>
@@ -63,14 +54,31 @@ export function RegisterForm() {
         Enter your email address and password to access your account.
       </p>
       <Form {...form}>
-        <form className="my-6" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="my-6" onSubmit={form.handleSubmit(register)}>
           <div className="flex flex-col space-y-4">
             <FormField
               control={form.control}
-              name="fullName"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter your full name"
+                      className="mt-1 bg-transparent"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -94,6 +102,19 @@ export function RegisterForm() {
                       placeholder="Enter your email"
                       className="mt-1 bg-transparent"
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl className="w-full">
+                    <PhoneInput placeholder="Enter a phone number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router';
 
-import { LoginForm } from './components/login-form';
-import { RegisterForm } from './components/register-form';
-import { Layout } from './layout';
+import { AuthLayout } from './auth-layout';
+import { LoginForm } from './login/login-form';
+import { RegisterForm } from './register/register-form';
 
 export function AuthRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/" element={<AuthLayout />}>
         <Route index element={<LoginForm />} />
         <Route path="login" element={<LoginForm />} />
         <Route path="register" element={<RegisterForm />} />

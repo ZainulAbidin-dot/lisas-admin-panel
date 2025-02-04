@@ -59,6 +59,12 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+
+  @media (max-width: 640px) {
+    :root {
+      font-size: 14px;
+    }
+  }
 }
 @layer base {
   body {
