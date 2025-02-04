@@ -73,7 +73,7 @@ const Advanced: React.FC = () => {
   const canGoBack = currentIndex < db.length - 1;
   const canSwipe = swipeCount < 3;
 
-  const swiped = (direction: string, nameToDelete: string, index: number) => {
+  const swiped = (direction: string, _: string, index: number) => {
     setLastDirection(direction);
     updateCurrentIndex(index - 1);
     setSwipeCount(swipeCount + 1);
