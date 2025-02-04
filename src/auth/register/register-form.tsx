@@ -214,7 +214,7 @@ export function RegisterForm() {
           className="text-primary"
           data-variant="secondary"
         >
-          Log in
+          Sign in
         </Link>
       </p>
     </React.Fragment>
