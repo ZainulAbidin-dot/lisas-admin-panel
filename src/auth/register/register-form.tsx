@@ -49,11 +49,11 @@ export function RegisterForm() {
   return (
     <React.Fragment>
       <h1 className="text-4xl font-bold text-gray-900">Lisa's Friend</h1>
-      <p className="mt-2 text-gray-600 text-xl">
+      <p className="mt-4 text-gray-600 text-xl font-semibold">
         Enter your email address and password to access your account.
       </p>
       <Form {...form}>
-        <form className="my-6" onSubmit={form.handleSubmit(register)}>
+        <form className="my-4" onSubmit={form.handleSubmit(register)}>
           <div className="flex flex-col space-y-4">
             <FormField
               control={form.control}
@@ -195,9 +195,8 @@ export function RegisterForm() {
               )}
             />
             <Button
-              data-variant="secondary"
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2"
+              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--app-secondary))]"
               type="submit"
               disabled={isSubmitting || isError}
             >
