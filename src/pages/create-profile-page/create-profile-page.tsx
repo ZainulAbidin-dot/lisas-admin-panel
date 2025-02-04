@@ -53,10 +53,10 @@ export function CreateProfilePage() {
 
   return (
     <div
-      className="flex flex-grow items-center justify-center"
+      className="flex flex-grow items-center justify-center px-4"
       data-variant="secondary"
     >
-      <div className="mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md">
+      <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
         <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
         <div className="mt-4 flex justify-between items-center gap-3">
           <p className="text-muted-foreground">
