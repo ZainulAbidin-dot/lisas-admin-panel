@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { FlameIcon, MenuIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Profile', href: '/profile' },
-  { name: 'Preference', href: '/preference' },
+  { name: 'Create Profile', href: '/profile/create' },
+  { name: 'Find Match', href: '/profile/find-match' },
 ];
 
 export function Navbar() {
@@ -22,7 +24,7 @@ export function Navbar() {
             {isMobile ? <MobileNavbar /> : null}
             <Logo />
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
