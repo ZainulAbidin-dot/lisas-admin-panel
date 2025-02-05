@@ -37,8 +37,6 @@ export function App() {
         {/* Persist Login end */}
 
         {/* Testing Components */}
-        <Route path="/profile/show" element={<ShowProfilePage />} />
-        <Route path="/match" element={<ProfileMatchPage />} />
       </Routes>
       <Toaster />
     </BrowserRouter>
