@@ -5,7 +5,7 @@ import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
-import { PhoneInput } from '@/components/composed/phone-input';
+import { PhoneNumberInput } from '@/components/composed/phone-input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -43,8 +43,6 @@ export function RegisterForm() {
   const isError = Boolean(
     form.formState.errors.email || form.formState.errors.password
   );
-
-  console.log(form.watch('phoneNumber'));
 
   return (
     <React.Fragment>
@@ -113,7 +111,10 @@ export function RegisterForm() {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl className="w-full">
-                    <PhoneInput placeholder="Enter a phone number" {...field} />
+                    <PhoneNumberInput
+                      value={field.value}
+                      onChange={(value) => field.onChange(value || '')}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -196,7 +197,7 @@ export function RegisterForm() {
             />
             <Button
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--app-secondary))]"
+              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--primary-hover))]"
               type="submit"
               disabled={isSubmitting || isError}
             >

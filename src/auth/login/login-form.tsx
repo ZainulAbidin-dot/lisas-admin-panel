@@ -111,7 +111,7 @@ export function LoginForm() {
             />
             <Button
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--app-secondary))]"
+              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--primary-hover))]"
               type="submit"
               disabled={isSubmitting || isError}
             >
