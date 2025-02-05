@@ -10,6 +10,7 @@ const navLinks = [
   { name: 'Profile', href: '/profile' },
   { name: 'Create Profile', href: '/profile/create' },
   { name: 'Find Match', href: '/profile/find-match' },
+  { name: 'Show Profile', href: '/profile/show' },
 ];
 
 export function Navbar() {
