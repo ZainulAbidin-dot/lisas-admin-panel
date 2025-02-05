@@ -43,12 +43,9 @@ export function LoginForm() {
   return (
     <React.Fragment>
       <h1 className="text-4xl font-bold text-gray-900">Lisa's Friend</h1>
-      <h2 className="mt-2 text-2xl font-bold text-gray-900">Sign In</h2>
-      <p className="mt-2 text-gray-600">
-        Enter your email address and password to access your account.
-      </p>
+      <p className="mt-4 text-gray-600 text-xl font-semibold">Welcome back.</p>
       <Form {...form}>
-        <form className="my-6" onSubmit={form.handleSubmit(login)}>
+        <form className="my-4" onSubmit={form.handleSubmit(login)}>
           <div className="flex flex-col space-y-4">
             <FormField
               control={form.control}
@@ -114,19 +111,23 @@ export function LoginForm() {
             />
             <Button
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2"
+              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--app-secondary))]"
               type="submit"
               disabled={isSubmitting || isError}
             >
               <ArrowRight size={18} />
-              <span>Log In</span>
+              <span>Sign In</span>
             </Button>
           </div>
         </form>
       </Form>
       <p className="mt-4 text-center text-gray-700">
         Don't have an account?{' '}
-        <Link to="/auth/register" className="text-blue-600 hover:underline">
+        <Link
+          to="/auth/register"
+          className="text-primary"
+          data-variant="secondary"
+        >
           Sign up
         </Link>
       </p>

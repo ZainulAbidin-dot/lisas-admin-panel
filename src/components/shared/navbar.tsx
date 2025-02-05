@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Profile', href: '/profile' },
-  { name: 'Preference', href: '/preference' },
+  { name: 'Create Profile', href: '/profile/create' },
+  { name: 'Find Match', href: '/profile/find-match' },
 ];
 
 export function Navbar() {
@@ -22,7 +23,7 @@ export function Navbar() {
             {isMobile ? <MobileNavbar /> : null}
             <Logo />
           </div>
-          <div className="hidden lg:block">
+          <div className="hidden md:flex gap-2">
             {navLinks.map((link) => (
               <Link
                 key={link.name}

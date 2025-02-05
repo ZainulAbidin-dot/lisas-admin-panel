@@ -20,8 +20,12 @@ export const useLogin = () => {
         withCredentials: true, // To allow cookies to be sent with the request
       });
       console.log('Login Response: ', response.data);
-      setToken(response.data.data.accessToken);
-      navigate(from);
+      const decodedToken = setToken(response.data.data.accessToken);
+      if (decodedToken.profileId) {
+        navigate(from);
+      } else {
+        navigate('/profile/create');
+      }
     } catch (error) {
       console.error('Login Error: ', error);
     }
