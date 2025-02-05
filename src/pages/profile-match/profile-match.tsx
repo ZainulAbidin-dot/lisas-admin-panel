@@ -20,11 +20,10 @@ const ProfileMatchContent = () => {
   );
 };
 
-export const ProfileMatch = () => {
+const ProfileMatch = () => {
   return (
-    <SidebarProvider>
-      <SidebarTrigger />
       <ProfileMatchContent />
-    </SidebarProvider>
   );
 };
+
+export default ProfileMatch;
