@@ -8,7 +8,7 @@ import { Toaster } from './components/ui/sonner';
 import { CreateProfilePage } from './pages/create-profile-page/create-profile-page';
 import { HomePage } from './pages/home';
 // import PreferencePage from './preference';
-import { ProfileMatch } from './profile-match/profile-match';
+import { ProfileMatch } from './pages/profile-match/profile-match';
 
 export function App() {
   return (
