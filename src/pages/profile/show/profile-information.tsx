@@ -101,7 +101,7 @@ export function ProfileInformation({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pl-0">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
             {/* Meeting Preference */}
             <FormField
               control={form.control}
@@ -227,7 +227,7 @@ export function ProfileInformation({
               control={form.control}
               name="selfDescription"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2">
                   <FormLabel>Describe Yourself</FormLabel>
                   <FormControl>
                     <Textarea
@@ -246,7 +246,7 @@ export function ProfileInformation({
               control={form.control}
               name="discussionTopics"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2">
                   <FormLabel>Topics You Like to Discuss</FormLabel>
                   <FormControl>
                     <Textarea
@@ -265,7 +265,7 @@ export function ProfileInformation({
               control={form.control}
               name="friendExpectations"
               render={({ field }) => (
-                <FormItem className="col-span-2">
+                <FormItem className="md:col-span-2">
                   <FormLabel>What Do You Expect from a Friend?</FormLabel>
                   <FormControl>
                     <Textarea
@@ -284,7 +284,7 @@ export function ProfileInformation({
               control={form.control}
               name="idVerification"
               render={() => (
-                <FormItem className="col-span-2">
+                <FormItem className="md:col-span-2">
                   <FormLabel>ID Verification</FormLabel>
                   <Input
                     className="bg-transparent"

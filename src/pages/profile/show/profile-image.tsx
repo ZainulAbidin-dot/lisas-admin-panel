@@ -61,7 +61,7 @@ export function ProfileImage({ profileImage, name }: ProfileImageProps) {
         see this.
       </p>
 
-      <CardContent className="flex items-center gap-4 mt-4 pl-0">
+      <CardContent className="flex items-center gap-4 mt-4 px-0">
         <Avatar className="w-16 h-16 border">
           <AvatarImage src={image || ''} alt="Profile" />
           <AvatarFallback className="">{getInitials(name)}</AvatarFallback>
