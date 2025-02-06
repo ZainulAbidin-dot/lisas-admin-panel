@@ -1,4 +1,6 @@
+import { AxiosError } from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import { axiosInstance } from '@/api/axios-instance';
 import { useAuthStore } from '@/store/auth-store';
@@ -28,6 +30,11 @@ export const useLogin = () => {
       }
     } catch (error) {
       console.error('Login Error: ', error);
+      const errorMessage =
+        error instanceof AxiosError
+          ? error?.response?.data?.message || error?.message || 'Unknown Error'
+          : 'Unknown Error';
+      toast.error(errorMessage);
     }
   };
 

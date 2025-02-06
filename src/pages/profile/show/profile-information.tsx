@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,41 +24,11 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
-const userProfileSchema = z.object({
-  meetingPreference: z.enum(['phone', 'penpal', 'chat']),
-  feelsLonely: z.enum(['yes', 'no']),
-  chatFrequency: z.enum([
-    'multiple-times-a-week',
-    'once-a-week',
-    'once-a-month',
-    'once-every-three-months',
-  ]),
-  city: z.string().min(1, 'City is required').max(50),
-  age: z.enum([
-    'under-18',
-    '18-24',
-    '25-34',
-    '35-44',
-    '45-54',
-    '55-64',
-    '65-or-older',
-  ]),
-  selfDescription: z.string().min(1, 'This field is required').max(255),
-  discussionTopics: z.string().min(1, 'This field is required').max(255),
-  friendExpectations: z.string().min(1, 'This field is required').max(255),
-  idVerification: z
-    .string()
-    .refine((base64String) => {
-      if (!base64String) return true;
-      const matches = base64String.match(/^data:(.+);base64,(.+)$/);
-      if (!matches || matches.length !== 3) return false;
-      const mimeType = matches[1];
-      return ['image/jpeg', 'image/png', 'image/jpg'].includes(mimeType);
-    }, 'Invalid image format')
-    .optional(),
-});
-
-type TUserProfile = z.infer<typeof userProfileSchema>;
+import {
+  TUserProfile,
+  useUpdateProfileInformation,
+  userProfileSchema,
+} from './_hooks/use-update-profile-information';
 
 export function ProfileInformation({
   userProfile,
@@ -70,6 +39,9 @@ export function ProfileInformation({
     resolver: zodResolver(userProfileSchema),
     defaultValues: userProfile,
   });
+
+  const { updateProfileInformation, isSubmitting } =
+    useUpdateProfileInformation();
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -84,14 +56,11 @@ export function ProfileInformation({
     const reader = new FileReader();
     reader.onloadend = () => {
       if (reader.result && typeof reader.result === 'string') {
+        console.log('Upading...');
         form.setValue('idVerification', reader.result);
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const onSubmit = (data: TUserProfile) => {
-    console.log('Submitted Data:', data);
   };
 
   return (
@@ -100,7 +69,7 @@ export function ProfileInformation({
       <p className="text-gray-500 text-sm">Tell us more about yourself.</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(updateProfileInformation)}>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
             {/* Meeting Preference */}
             <FormField
@@ -298,12 +267,26 @@ export function ProfileInformation({
             />
           </CardContent>
 
+          {/* Preview Image For ID Verification */}
+          <div className="mt-2 mb-6">
+            {form.watch('idVerification') && (
+              <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={form.watch('idVerification')}
+                  alt="Profile Image"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+          </div>
+
           <Separator />
 
           <div className="flex justify-end mt-4">
             <Button
               type="submit"
               className="hover:bg-[hsl(var(--primary-hover))]"
+              disabled={isSubmitting}
             >
               <SaveIcon />
               Save

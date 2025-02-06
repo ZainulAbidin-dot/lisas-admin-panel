@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
+import { useUpdateProfileImage } from './_hooks/use-update-profile-image';
+
 interface ProfileImageProps {
   profileImage?: string | null;
   name: string;
@@ -15,6 +17,7 @@ interface ProfileImageProps {
 export function ProfileImage({ profileImage, name }: ProfileImageProps) {
   const [image, setImage] = useState<string | null>(profileImage || null);
   const avatarUploadRef = useRef<HTMLInputElement>(null);
+  const { updateProfileImage, isSubmitting } = useUpdateProfileImage();
 
   const getInitials = (fullName: string) => {
     return fullName
@@ -53,6 +56,11 @@ export function ProfileImage({ profileImage, name }: ProfileImageProps) {
     avatarUploadRef.current?.click();
   };
 
+  const handleImageUpdate = async () => {
+    if (!image) return;
+    await updateProfileImage(image);
+  };
+
   return (
     <Card className="p-6 bg-transparent shadow-sm">
       <h2 className="text-3xl font-bold mb-2">Avatar</h2>
@@ -89,7 +97,11 @@ export function ProfileImage({ profileImage, name }: ProfileImageProps) {
       <Separator />
 
       <div className="flex justify-end mt-4">
-        <Button className="hover:bg-[hsl(var(--primary-hover))]">
+        <Button
+          className="hover:bg-[hsl(var(--primary-hover))]"
+          disabled={isSubmitting}
+          onClick={handleImageUpdate}
+        >
           <SaveIcon className="size-4" />
           Save
         </Button>

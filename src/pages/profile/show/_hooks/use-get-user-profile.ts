@@ -34,6 +34,7 @@ type ProfileData = {
   discussionTopics: string;
   friendExpectations: string;
   idVerification?: string | undefined;
+  profileImage?: string | undefined;
 };
 
 type User = {
