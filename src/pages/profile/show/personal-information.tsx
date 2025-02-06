@@ -50,7 +50,7 @@ export function PersonalInfoForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pl-0">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
             {/* First Name */}
             <FormField
               control={form.control}

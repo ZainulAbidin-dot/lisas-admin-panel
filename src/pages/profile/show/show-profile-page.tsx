@@ -12,7 +12,7 @@ const personalInfo = {
 export function ShowProfilePage() {
   return (
     <div className="flex-grow w-full">
-      <div className="w-full max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-7xl mx-auto py-6 px-2 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4">
           <ProfileImage name="Siddiq Ahmed" />
           <PersonalInfoForm personalInfo={personalInfo} />

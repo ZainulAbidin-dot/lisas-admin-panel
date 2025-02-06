@@ -52,10 +52,7 @@ export function CreateProfilePage() {
   };
 
   return (
-    <div
-      className="flex flex-grow items-center justify-center px-4"
-      data-variant="secondary"
-    >
+    <div className="flex flex-grow items-center justify-center px-4">
       <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
         <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
         <div className="mt-4 flex justify-between items-center gap-3">
@@ -81,13 +78,27 @@ export function CreateProfilePage() {
           )}
         </div>
         <div className="mt-6 flex justify-between">
-          <Button onClick={handlePrevious} disabled={step === 0}>
+          <Button
+            onClick={handlePrevious}
+            disabled={step === 0}
+            className="hover:bg-[hsl(var(--primary-hover))]"
+          >
             Previous
           </Button>
           {step === formFields.length - 1 ? (
-            <Button onClick={handleSubmit}>Submit</Button>
+            <Button
+              onClick={handleSubmit}
+              className="hover:bg-[hsl(var(--primary-hover))]"
+            >
+              Submit
+            </Button>
           ) : (
-            <Button onClick={handleNext}>Next</Button>
+            <Button
+              onClick={handleNext}
+              className="hover:bg-[hsl(var(--primary-hover))]"
+            >
+              Next
+            </Button>
           )}
         </div>
       </div>
