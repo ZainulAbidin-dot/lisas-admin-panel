@@ -1,8 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { isPossiblePhoneNumber } from 'react-phone-number-input';
-import { z } from 'zod';
 
 import { PhoneNumberInput } from '@/components/composed/phone-input';
 import { Button } from '@/components/ui/button';
@@ -18,16 +16,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 
-const personalInfoSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phoneNumber: z
-    .string()
-    .refine(isPossiblePhoneNumber, { message: 'Invalid phone number' }),
-});
-
-type TPersonalInfo = z.infer<typeof personalInfoSchema>;
+import {
+  type TPersonalInfo,
+  personalInfoSchema,
+  useUpdatePersonalInformation,
+} from './_hooks/use-update-personal-information';
 
 export function PersonalInfoForm({
   personalInfo,
@@ -39,9 +32,8 @@ export function PersonalInfoForm({
     defaultValues: personalInfo,
   });
 
-  const onSubmit = (data: TPersonalInfo) => {
-    console.log('Submitted Data:', data);
-  };
+  const { updatePersonalInformation, isLoading } =
+    useUpdatePersonalInformation();
 
   return (
     <Card className="p-6 bg-transparent shadow-sm">
@@ -49,7 +41,7 @@ export function PersonalInfoForm({
       <p className="text-gray-500 text-sm">Update personal information.</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(updatePersonalInformation)}>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
             {/* First Name */}
             <FormField
@@ -134,6 +126,7 @@ export function PersonalInfoForm({
             <Button
               type="submit"
               className="hover:bg-[hsl(var(--primary-hover))]"
+              disabled={isLoading}
             >
               <SaveIcon className="size-4" />
               Save
