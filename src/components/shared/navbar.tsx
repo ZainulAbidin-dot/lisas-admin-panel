@@ -1,4 +1,4 @@
-import { FlameIcon, MenuIcon, XIcon } from 'lucide-react';
+import { FlameIcon, PanelLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -24,19 +24,7 @@ export function Navbar() {
 }
 
 function ToggleSidebarButton() {
-  const { open, toggleSidebar, isMobile } = useSidebar();
-
-  if (isMobile)
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        title={open ? 'Close sidebar' : 'Open sidebar'}
-      >
-        <MenuIcon className="!size-8" />
-      </Button>
-    );
+  const { open, toggleSidebar } = useSidebar();
 
   return (
     <Button
@@ -45,7 +33,7 @@ function ToggleSidebarButton() {
       onClick={toggleSidebar}
       title={open ? 'Close sidebar' : 'Open sidebar'}
     >
-      {open ? <XIcon className="!size-8" /> : <MenuIcon className="!size-8" />}
+      <PanelLeft className="!size-8" />
     </Button>
   );
 }
