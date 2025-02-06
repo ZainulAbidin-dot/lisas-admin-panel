@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -25,20 +27,27 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
 import {
-  TUserProfile,
+  TUpdateUserProfile,
+  updateUserProfileSchema,
   useUpdateProfileInformation,
-  userProfileSchema,
 } from './_hooks/use-update-profile-information';
 
-export function ProfileInformation({
+export function UpdateProfileInformation({
   userProfile,
 }: {
-  userProfile: TUserProfile;
+  userProfile: TUpdateUserProfile;
 }) {
   const form = useForm({
-    resolver: zodResolver(userProfileSchema),
-    defaultValues: userProfile,
+    resolver: zodResolver(updateUserProfileSchema),
+    defaultValues: {
+      ...userProfile,
+      idVerification: '',
+    },
   });
+
+  const [idVerificationPreview, setIdVerificationPreview] = useState<string>(
+    userProfile.idVerification || ''
+  );
 
   const { updateProfileInformation, isSubmitting } =
     useUpdateProfileInformation();
@@ -58,6 +67,7 @@ export function ProfileInformation({
       if (reader.result && typeof reader.result === 'string') {
         console.log('Upading...');
         form.setValue('idVerification', reader.result);
+        setIdVerificationPreview(reader.result);
       }
     };
     reader.readAsDataURL(file);
@@ -269,10 +279,10 @@ export function ProfileInformation({
 
           {/* Preview Image For ID Verification */}
           <div className="mt-2 mb-6">
-            {form.watch('idVerification') && (
+            {idVerificationPreview && (
               <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                  src={form.watch('idVerification')}
+                  src={idVerificationPreview}
                   alt="Profile Image"
                   className="w-full h-full object-contain"
                 />

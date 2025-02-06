@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
 
-export const userProfileSchema = z.object({
+export const updateUserProfileSchema = z.object({
   meetingPreference: z.enum(['phone', 'penpal', 'chat']),
   feelsLonely: z.enum(['yes', 'no']),
   chatFrequency: z.enum([
@@ -30,9 +30,10 @@ export const userProfileSchema = z.object({
   friendExpectations: z.string().min(1, 'This field is required').max(255),
   idVerification: z
     .string()
-    .refine((base64String) => {
-      if (!base64String) return true;
-      const matches = base64String.match(/^data:(.+);base64,(.+)$/);
+    .refine((value) => {
+      console.log('base64String: ', value);
+      if (!value) return true;
+      const matches = value.match(/^data:(.+);base64,(.+)$/);
       if (!matches || matches.length !== 3) return false;
       const mimeType = matches[1];
       return ['image/jpeg', 'image/png', 'image/jpg'].includes(mimeType);
@@ -40,14 +41,14 @@ export const userProfileSchema = z.object({
     .optional(),
 });
 
-export type TUserProfile = z.infer<typeof userProfileSchema>;
+export type TUpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
 
 export function useUpdateProfileInformation() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const axiosInstance = useAxiosPrivate();
 
-  const updateProfileInformation = async (values: TUserProfile) => {
+  const updateProfileInformation = async (values: TUpdateUserProfile) => {
     try {
       setIsSubmitting(true);
       const response = await axiosInstance.put(

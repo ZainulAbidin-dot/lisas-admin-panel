@@ -1,6 +1,8 @@
+import { InputHTMLAttributes } from 'react';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext } from 'react-hook-form';
 
 import { PhoneNumberInput } from '@/components/composed/phone-input';
 import { Button } from '@/components/ui/button';
@@ -15,24 +17,25 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 import {
-  type TPersonalInfo,
-  personalInfoSchema,
+  type TUpdatePersonalInfo,
+  updatePersonalInfoSchema,
   useUpdatePersonalInformation,
 } from './_hooks/use-update-personal-information';
 
-export function PersonalInfoForm({
+export function UpdatePersonalInfo({
   personalInfo,
 }: {
-  personalInfo: TPersonalInfo;
+  personalInfo: TUpdatePersonalInfo;
 }) {
   const form = useForm({
-    resolver: zodResolver(personalInfoSchema),
+    resolver: zodResolver(updatePersonalInfoSchema),
     defaultValues: personalInfo,
   });
 
-  const { updatePersonalInformation, isLoading } =
+  const { updatePersonalInformation, isSubmitting } =
     useUpdatePersonalInformation();
 
   return (
@@ -43,62 +46,25 @@ export function PersonalInfoForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updatePersonalInformation)}>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
-            {/* First Name */}
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First name</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-transparent"
-                      placeholder="First name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TextInputWithLabel<TUpdatePersonalInfo>
+              nameInSchema="firstName"
+              displayName="First Name"
+              placeholder="Enter first name"
+              type="text"
             />
 
-            {/* Last Name */}
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last name</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-transparent"
-                      placeholder="Last name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TextInputWithLabel<TUpdatePersonalInfo>
+              nameInSchema="lastName"
+              displayName="Last Name"
+              placeholder="Enter ast name"
+              type="text"
             />
 
-            {/* Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email address</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="bg-transparent"
-                      type="email"
-                      placeholder="Email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TextInputWithLabel<TUpdatePersonalInfo>
+              nameInSchema="email"
+              displayName="Email"
+              placeholder="Enter email"
+              type="email"
             />
 
             {/* Phone Number */}
@@ -126,7 +92,7 @@ export function PersonalInfoForm({
             <Button
               type="submit"
               className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
               <SaveIcon className="size-4" />
               Save
@@ -135,5 +101,49 @@ export function PersonalInfoForm({
         </form>
       </Form>
     </Card>
+  );
+}
+
+function TextInputWithLabel<S>({
+  displayName,
+  nameInSchema,
+  type,
+  placeholder,
+  className,
+  labelClassName,
+  ...props
+}: {
+  displayName: string;
+  nameInSchema: keyof S & string;
+  placeholder: string;
+  type?: 'email' | 'text';
+  className?: string;
+  labelClassName?: string;
+} & InputHTMLAttributes<HTMLInputElement>) {
+  const form = useFormContext();
+
+  return (
+    <FormField
+      control={form.control}
+      name={nameInSchema}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel className={labelClassName} htmlFor={nameInSchema}>
+            {displayName}
+          </FormLabel>
+          <FormControl>
+            <Input
+              className={cn('bg-transparent', className)}
+              type={type || 'text'}
+              id={nameInSchema}
+              placeholder={placeholder}
+              {...field}
+              {...props}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }

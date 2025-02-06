@@ -19,8 +19,10 @@ const PersistLogin = () => {
     const verifyRefreshToken = async () => {
       try {
         await refresh(abortController);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'CanceledError') {
+          console.log(error);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -39,15 +41,10 @@ const PersistLogin = () => {
     }
 
     return () => {
-      isMounted = false;
       abortController.abort();
+      isMounted = false;
     };
   }, [remember, refresh, token]);
-
-  useEffect(() => {
-    console.log(`isLoading: ${isLoading}`);
-    console.log(`aT: ${JSON.stringify(token)}`);
-  }, [isLoading, token]);
 
   return !remember ? <Outlet /> : isLoading ? <p>Loading...</p> : <Outlet />;
 };

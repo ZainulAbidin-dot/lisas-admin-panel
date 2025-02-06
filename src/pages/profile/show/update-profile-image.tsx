@@ -14,8 +14,8 @@ interface ProfileImageProps {
   name: string;
 }
 
-export function ProfileImage({ profileImage, name }: ProfileImageProps) {
-  const [image, setImage] = useState<string | null>(profileImage || null);
+export function UpdateProfileImage({ profileImage, name }: ProfileImageProps) {
+  const [image, setImage] = useState<string | null>(null);
   const avatarUploadRef = useRef<HTMLInputElement>(null);
   const { updateProfileImage, isSubmitting } = useUpdateProfileImage();
 
@@ -71,7 +71,7 @@ export function ProfileImage({ profileImage, name }: ProfileImageProps) {
 
       <CardContent className="flex items-center gap-4 mt-4 px-0">
         <Avatar className="w-16 h-16 border">
-          <AvatarImage src={image || ''} alt="Profile" />
+          <AvatarImage src={image || profileImage || ''} alt="Profile" />
           <AvatarFallback className="">{getInitials(name)}</AvatarFallback>
         </Avatar>
 
