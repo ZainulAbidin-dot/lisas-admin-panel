@@ -5,6 +5,7 @@ import RequireAuth from './auth/_components/require-auth';
 import { AuthRouter } from './auth/auth-router';
 import { AppLayout } from './components/shared/app-layout';
 import { Toaster } from './components/ui/sonner';
+import { ChatPage } from './pages/chat/chat-page';
 import { HomePage } from './pages/home';
 import { ProfileMatchPage } from './pages/profile-match/profile-match';
 import { CreateProfilePage } from './pages/profile/create/create-profile-page';
@@ -33,8 +34,10 @@ export function App() {
             </Route>
             {/* Require Auth End */}
           </Route>
+          {/* Persist Login end */}
+
+          <Route path="/chat/*" element={<ChatPage />} />
         </Route>
-        {/* Persist Login end */}
 
         {/* Testing Components */}
       </Routes>

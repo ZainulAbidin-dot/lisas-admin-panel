@@ -1,9 +1,9 @@
-import SwipeCardComponent from './SwipeCardComponent';
 import MatchBar from './MatchBar';
+import SwipeCardComponent from './SwipeCardComponent';
 
 export const ProfileMatchPage = () => {
   return (
-    <div className="flex w-full justify-between bg-gray-200">
+    <div className="flex flex-grow justify-between bg-gray-200">
       <MatchBar />
       <div className="flex flex-col w-full items-center p-4">
         <div className="w-full md:w-[65%] p-4 text-white text-center bg-[#042920] text-[24px] md:text-[30px] rounded-2xl shadow-md mb-4">

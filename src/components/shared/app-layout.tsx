@@ -36,7 +36,7 @@ export const AppLayout = () => {
       <div className="w-full">
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <main className="flex-grow flex">
+          <main className="flex-grow flex flex-col">
             <Outlet />
           </main>
           <Footer />
@@ -60,7 +60,7 @@ const items = [
   },
   {
     title: 'Chat',
-    url: '#',
+    url: '/chat',
     icon: MessageSquareTextIcon,
   },
   {
