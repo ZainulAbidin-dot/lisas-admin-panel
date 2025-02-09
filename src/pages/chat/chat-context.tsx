@@ -1,3 +1,4 @@
+//! This context is currently set to test the chat feature
 import { createContext, useContext, useState } from 'react';
 
 type ChatUser = {

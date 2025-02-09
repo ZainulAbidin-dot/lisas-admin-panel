@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import {
+  ArrowBigLeftIcon,
   ArrowLeftIcon,
   MessageCircle,
   PhoneIcon,
@@ -113,7 +114,7 @@ export function ChatMainArea({ conversation }: { conversation: Conversation }) {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversation]);
+  }, [conversation.messages.length]);
 
   return (
     <ScrollArea className="h-full">
@@ -130,13 +131,19 @@ export function ChatMainArea({ conversation }: { conversation: Conversation }) {
 export function ChatInputArea({
   addMessage,
 }: {
-  addMessage: (message: string) => void;
+  addMessage: (message: string, isOwnMessage: boolean) => void;
 }) {
   const [input, setInput] = useState('');
 
-  const handleSend = () => {
+  const handleSendAsOwnMessage = () => {
     if (!input.trim()) return;
-    addMessage(input);
+    addMessage(input, true);
+    setInput('');
+  };
+
+  const handleSendAsRecipient = () => {
+    if (!input.trim()) return;
+    addMessage(input, false);
     setInput('');
   };
 
@@ -147,10 +154,14 @@ export function ChatInputArea({
         className="flex-1 bg-transparent"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+        onKeyDown={(e) => e.key === 'Enter' && handleSendAsOwnMessage()}
       />
-      <Button size="icon" onClick={handleSend}>
+      <Button size="icon" onClick={handleSendAsOwnMessage}>
         <SendIcon />
+        <span className="sr-only">Send Message</span>
+      </Button>
+      <Button size="icon" variant="destructive" onClick={handleSendAsRecipient}>
+        <ArrowBigLeftIcon />
         <span className="sr-only">Send Message</span>
       </Button>
     </div>
@@ -163,11 +174,11 @@ export function ChatSection() {
 
   const conversation = getCoversationByUserId(id!);
 
-  function handleSend(message: string) {
+  function handleSend(message: string, isOwnMessage: boolean) {
     addMessage(id!, {
       text: message,
       createdAt: new Date(),
-      isOwnMessage: Math.random() > 0.5,
+      isOwnMessage: isOwnMessage,
     });
   }
 
