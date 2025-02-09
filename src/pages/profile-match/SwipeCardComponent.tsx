@@ -1,4 +1,6 @@
 import TinderCard from 'react-tinder-card';
+import heart from '../../assets/images/green-heart.png'
+import redX from '../../assets/images/red-x.png'
 
 const db = [
   {
@@ -7,7 +9,7 @@ const db = [
     email: 'richard@example.com',
     phone: '123-456-7890',
     age: 32,
-    city: 'Palo Alto',
+    city: 'Palo Alto, San Francisco',
   },
   {
     name: 'Erlich Bachman',
@@ -15,7 +17,7 @@ const db = [
     email: 'erlich@example.com',
     phone: '234-567-8901',
     age: 35,
-    city: 'San Francisco',
+    city: 'San Francisco, San Francisco',
   },
   {
     name: 'Monica Hall',
@@ -23,7 +25,7 @@ const db = [
     email: 'monica@example.com',
     phone: '345-678-9012',
     age: 29,
-    city: 'San Francisco',
+    city: 'San Francisco, San Francisco',
   },
   {
     name: 'Jared Dunn',
@@ -31,7 +33,7 @@ const db = [
     email: 'jared@example.com',
     phone: '456-789-0123',
     age: 34,
-    city: 'Palo Alto',
+    city: 'Palo Alto, San Francisco',
   },
   {
     name: 'Dinesh Chugtai',
@@ -39,7 +41,7 @@ const db = [
     email: 'dinesh@example.com',
     phone: '567-890-1234',
     age: 31,
-    city: 'Palo Alto',
+    city: 'Palo Alto, San Francisco',
   },
 ];
 
@@ -71,24 +73,30 @@ const SwipeArea = () => {
           swipeThreshold={100}
           preventSwipe={['up', 'down']}
         >
-          <div
-            className="card bg-white w-96 h-[25rem] select-none rounded-lg overflow-hidden border
-					 border-gray-200"
-          >
-            <figure className="px-4 pt-4 w-3/5 h-3/4 mx-auto">
-              <img
-                src={user.url || '/avatar.png'}
-                alt={user.name}
-                className="rounded-lg object-cover h-full pointer-events-none"
-              />
-            </figure>
-            <div className="card-body mt-4 px-4">
-              <h2 className="card-title text-xl text-gray-800">{user.name}</h2>
-              <p className="text-gray-600">
-                {user.city} | {user.age} | {user.phone}
-              </p>
+            <div
+            className="card w-[20rem] h-[28rem] select-none rounded-lg overflow-hidden border border-gray-200 relative"
+            >
+            <img
+              src={user.url || '/avatar.png'}
+              alt={user.name}
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            />
+            <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-4">
+              <div className='relative bottom-12 '>
+               <h2 className="text-2xl text-white">{user.name} <span className='text-sm font-light'>{user.age}</span></h2>
+               <p className="text-gray-300 font-light">{user.city}</p>
+               <p className='text-gray-300 font-light'>{user.email}</p>
+              </div>
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
+                <button className="py-2 rounded-full shadow-md">
+                  <img src={redX} alt="Dislike" className="w-12 h-11" />
+                </button>
+                <button className="p-2 rounded-full shadow-md">
+                  <img src={heart} alt="Like" className="w-12 h-12" />
+                </button>
+              </div>
             </div>
-          </div>
+            </div>
         </TinderCard>
       ))}
     </div>
