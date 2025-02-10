@@ -27,20 +27,13 @@ type ChatHeaderProps = {
 export function ChatHeader({ name, profileImage, isOnline }: ChatHeaderProps) {
   const isMobile = useIsMobile();
   return (
-    <div className="flex items-center justify-between p-3 shadow-sm">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center justify-between shadow-md pb-2 px-2">
+      <div className="flex items-center gap-2">
         {isMobile ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="!p-0 !rounded-full"
-            title="Back"
-            asChild
-          >
-            <Link to={`/chat`}>
-              <ArrowLeftIcon />
-            </Link>
-          </Button>
+          <Link to="/chat">
+            <ArrowLeftIcon className="size-5" />
+            <span className="sr-only">Back</span>
+          </Link>
         ) : null}
         <Avatar className="w-10 h-10 rounded-full">
           <AvatarImage src={profileImage} />
@@ -148,7 +141,7 @@ export function ChatInputArea({
   };
 
   return (
-    <div className="flex items-center gap-2 p-3 border-t bg-white shadow-md">
+    <div className="flex items-center gap-2 pt-2 px-2 md:px-2 border-t bg-white shadow-md">
       <Input
         placeholder="Enter Message..."
         className="flex-1 bg-transparent"
@@ -184,7 +177,9 @@ export function ChatSection() {
 
   return (
     <section
-      className={cn('flex-grow flex flex-col gap-4 p-4 h-full overflow-hidden')}
+      className={cn(
+        'flex-grow flex flex-col gap-4 px-2 py-2 md:py-4 md:px-4 h-full overflow-hidden'
+      )}
     >
       <div className="flex flex-col h-full overflow-y-auto">
         <ChatHeader

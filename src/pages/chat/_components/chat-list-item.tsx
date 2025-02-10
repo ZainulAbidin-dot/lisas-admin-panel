@@ -22,7 +22,7 @@ export function ChatListItem({ contact }: { contact: Contact }) {
     <Link to={`/chat/${contact.user.id}`}>
       <div
         className={cn(
-          'flex items-center justify-between gap-2 p-3 hover:bg-gray-100 rounded-lg cursor-pointer',
+          'flex items-center justify-between gap-2 px-1 py-1 md:px-2 md:py-2 hover:bg-gray-100 rounded-lg cursor-pointer',
           id === contact.user.id ? 'bg-gray-200 hover:bg-gray-300' : ''
         )}
       >
@@ -60,7 +60,10 @@ export function ChatListItem({ contact }: { contact: Contact }) {
               : ''}
           </p>
           {contact.user.unreadMessages > 0 && (
-            <Badge className="bg-red-500 text-white text-xs px-2 py-1 rounded-full w-fit ml-auto">
+            <Badge
+              className="text-white text-xs px-2 py-1 rounded-full w-fit ml-auto"
+              variant="destructive"
+            >
               {contact.user.unreadMessages}
             </Badge>
           )}

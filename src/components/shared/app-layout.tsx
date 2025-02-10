@@ -34,7 +34,7 @@ export const AppLayout = () => {
     <SidebarProvider>
       <AppSidebar />
       <div className="w-full">
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen min-h-svh">
           <Navbar />
           <main className="flex-grow flex flex-col">
             <Outlet />

@@ -9,8 +9,13 @@ import { useSidebar } from '../ui/sidebar';
 
 export function Navbar() {
   return (
-    <nav className="h-20 bg-primary px-6 py-4 text-primary-foreground">
-      <div className="w-7xl mx-auto">
+    <nav
+      className={cn(
+        'bg-primary text-primary-foreground',
+        'h-16 px-2 sm:px-4 flex items-center'
+      )}
+    >
+      <div className="flex-grow">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <ToggleSidebarButton />

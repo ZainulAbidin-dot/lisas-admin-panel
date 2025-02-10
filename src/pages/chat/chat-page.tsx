@@ -28,7 +28,7 @@ function ChatSidebar() {
   return (
     <ScrollArea
       className={cn(
-        'w-1/4 min-w-80 h-full py-4 px-4',
+        'w-1/4 min-w-80 h-full px-2 py-2 md:py-4 md:px-4',
         isMobile ? (id ? 'hidden' : 'w-full') : ''
       )}
     >
@@ -47,7 +47,8 @@ function ChatLayout() {
       <div
         className={cn(
           'flex gap-4',
-          'h-[calc(100vh-5rem-3.5rem)]',
+          'h-[calc(100vh-4rem-3.5rem)]',
+          'h-[calc(100svh-4rem-3.5rem)]',
           'overflow-y-auto'
         )}
       >
