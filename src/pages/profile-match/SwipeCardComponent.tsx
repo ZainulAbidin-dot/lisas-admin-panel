@@ -1,6 +1,8 @@
 import TinderCard from 'react-tinder-card';
-import heart from '../../assets/images/green-heart.png'
-import redX from '../../assets/images/red-x.png'
+import heart from '../../assets/images/green-heart.png';
+import redX from '../../assets/images/red-x.png';
+import like from '../../assets/images/like.png';
+import nope from '../../assets/images/nope.png';
 
 const db = [
   {
@@ -57,9 +59,21 @@ const SwipeArea = () => {
 
   type Direction = 'left' | 'right' | 'up' | 'down';
 
-  const handleSwipe = (_: Direction, __: User): void => {
-    // if (dir === "right") swipeRight(user);
-    // else if (dir === "left") swipeLeft(user);
+  const handleSwipe = (dir: Direction, user: User): void => {
+    const nopeElement = document.getElementById(`nope-${user.age}`);
+    const likeElement = document.getElementById(`like-${user.age}`);
+
+    if (dir === 'left' && nopeElement) {
+      nopeElement.style.display = 'block';
+      setTimeout(() => {
+        nopeElement.style.display = 'none';
+      }, 1000);
+    } else if (dir === 'right' && likeElement) {
+      likeElement.style.display = 'block';
+      setTimeout(() => {
+        likeElement.style.display = 'none';
+      }, 1000);
+    }
   };
 
   return (
@@ -73,19 +87,27 @@ const SwipeArea = () => {
           swipeThreshold={100}
           preventSwipe={['up', 'down']}
         >
-            <div
-            className="card w-[20rem] h-[28rem] select-none rounded-lg overflow-hidden border border-gray-200 relative"
-            >
+          <div className="card w-[20rem] h-[28rem] select-none rounded-lg overflow-hidden border border-gray-200 relative">
             <img
               src={user.url || '/avatar.png'}
               alt={user.name}
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             />
+            
+            <div className="absolute top-4 left-4 hidden" id={`nope-${user.age}`}>
+              <img src={nope} alt="Nope" className="w-16 h-16" />
+            </div>
+            <div className="absolute top-4 right-4 hidden" id={`like-${user.age}`}>
+              <img src={like} alt="Like" className="w-16 h-16" />
+            </div>
+
             <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-4">
-              <div className='relative bottom-12 '>
-               <h2 className="text-2xl text-white">{user.name} <span className='text-sm font-light'>{user.age}</span></h2>
-               <p className="text-gray-300 font-light">{user.city}</p>
-               <p className='text-gray-300 font-light'>{user.email}</p>
+              <div className="relative bottom-12">
+                <h2 className="text-2xl text-white">
+                  {user.name} <span className="text-sm font-light">{user.age}</span>
+                </h2>
+                <p className="text-gray-300 font-light">{user.city}</p>
+                <p className="text-gray-300 font-light">{user.email}</p>
               </div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
                 <button className="py-2 rounded-full shadow-md">
@@ -96,10 +118,11 @@ const SwipeArea = () => {
                 </button>
               </div>
             </div>
-            </div>
+          </div>
         </TinderCard>
       ))}
     </div>
   );
 };
+
 export default SwipeArea;
