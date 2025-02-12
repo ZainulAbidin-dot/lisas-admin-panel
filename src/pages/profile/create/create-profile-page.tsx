@@ -1,42 +1,109 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { isPossiblePhoneNumber } from 'react-phone-number-input';
 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useAuthStore } from '@/store/auth-store';
 
+import { DoubleTextField } from './double-text-field';
 import { FileUploadField } from './file-upload-field';
 import { formFields } from './form-fields';
-import { QuestionField } from './question-field';
+import { PasswordField } from './password-field';
+import { PhoneField } from './phone-field';
+import { RadioField } from './radio-field';
+import { TextField } from './text-field';
 import { useCreateProfile } from './use-create-profile';
 
 export function CreateProfilePage() {
-  const { token } = useAuthStore();
-  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { createProfile } = useCreateProfile();
-
-  useEffect(() => {
-    if (token?.decoded.profileId) {
-      navigate('/');
-    }
-  }, [navigate, token?.decoded.profileId]);
+  const { createProfile,  } = useCreateProfile();
 
   const handleNext = () => {
     const currentField = formFields[step];
-    if (currentField.required && !answers[currentField.name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [currentField.name]: 'This field is required',
-      }));
-      return;
+
+    switch (currentField.type) {
+      case 'double-text': {
+        let isValid = true;
+        if (
+          currentField.firstField.required &&
+          !answers[currentField.firstField.name] 
+        ) {
+          setErrors((prev) => ({
+            ...prev,
+            [currentField.firstField.name]: 'This field is required',
+          }));
+          isValid = false;
+        }
+        if (
+          currentField.secondField.required &&
+          !answers[currentField.secondField.name]
+        ) {
+          setErrors((prev) => ({
+            ...prev,
+            [currentField.secondField.name]: 'This field is required',
+          }));
+          isValid = false;
+        }
+
+        if(!isValid) return;
+        
+        break;
+      }
+      case 'phone': {
+        if (!answers[currentField.name]) {
+          setErrors((prev) => ({
+            ...prev,
+            [currentField.name]: 'This field is required',
+          }));
+          return;
+        }
+        if (!isPossiblePhoneNumber(answers[currentField.name])) {
+          setErrors((prev) => ({
+            ...prev,
+            [currentField.name]: 'Invalid phone number',
+          }));
+          return;
+        }
+        break;
+      }
+      case 'password': {
+        if(!answers.password) {
+          setErrors((prev) => ({
+            ...prev,
+            password: 'Password is required',
+          }));
+          return;
+        }
+
+        if (answers.password !== answers.confirmPassword) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: 'Passwords do not match',
+          }));
+          return;
+        }
+        break;
+      }
+      default:
+        if (currentField.required && !answers[currentField.name]) {
+          setErrors((prev) => ({
+            ...prev,
+            [currentField.name]: 'This field is required',
+          }));
+          return;
+        }
     }
+
     setErrors({});
     setStep((prev) => Math.min(prev + 1, formFields.length - 1));
+
+    if (step === formFields.length - 1) {
+      createProfile(answers);
+    }
   };
+
 
   const handlePrevious = () => {
     setStep((prev) => Math.max(prev - 1, 0));
@@ -45,10 +112,6 @@ export function CreateProfilePage() {
   const handleAnswer = (name: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
-
-  const handleSubmit = () => {
-    createProfile(answers);
   };
 
   return (
@@ -62,20 +125,13 @@ export function CreateProfilePage() {
           <Progress value={((step + 1) / formFields.length) * 100} />
         </div>
         <div className="mt-6">
-          {formFields[step].type === 'file' ? (
-            <FileUploadField
-              field={formFields[step]}
-              onChange={handleAnswer}
-              error={errors[formFields[step].name]}
-            />
-          ) : (
-            <QuestionField
-              field={formFields[step]}
-              value={answers[formFields[step].name] || ''}
-              onChange={handleAnswer}
-              error={errors[formFields[step].name]}
-            />
-          )}
+           
+              <RenderStep
+                step={step}
+                answers={answers}
+                errors={errors}
+                handleAnswer={handleAnswer}
+              />
         </div>
         <div className="mt-6 flex justify-between">
           <Button
@@ -85,23 +141,109 @@ export function CreateProfilePage() {
           >
             Previous
           </Button>
-          {step === formFields.length - 1 ? (
+          
             <Button
-              onClick={handleSubmit}
-              className="hover:bg-[hsl(var(--primary-hover))]"
-            >
-              Submit
-            </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              className="hover:bg-[hsl(var(--primary-hover))]"
-            >
-              Next
-            </Button>
-          )}
+            onClick={handleNext}
+            className="hover:bg-[hsl(var(--primary-hover))]"
+          >
+            Next
+          </Button>
+          
         </div>
       </div>
     </div>
   );
+}
+
+function RenderStep({
+  step,
+  answers,
+  errors,
+  handleAnswer,
+}: {
+  step: number;
+  answers: Record<string, string>;
+  errors: Record<string, string>;
+  handleAnswer: (name: string, value: string) => void;
+}) {
+  const currentFieldType = formFields[step].type;
+
+  if (currentFieldType === 'file') {
+    return (
+      <FileUploadField
+        field={formFields[step]}
+        onChange={handleAnswer}
+        error={errors[formFields[step].name]}
+      />
+    );
+  }
+
+  if (currentFieldType === 'text' || currentFieldType === 'textarea') {
+    return (
+      <TextField
+        field={formFields[step]}
+        value={answers[formFields[step].name] || ''}
+        onChange={handleAnswer}
+        error={errors[formFields[step].name]}
+      />
+    );
+  }
+
+  if (currentFieldType === 'radio') {
+    return (
+      <RadioField
+        field={formFields[step]}
+        value={answers[formFields[step].name] || ''}
+        onChange={handleAnswer}
+        error={errors[formFields[step].name]}
+      />
+    );
+  }
+
+  if (currentFieldType === 'double-text') {
+    return (
+      <DoubleTextField
+        field={formFields[step]}
+        firstField={{
+          value: answers[formFields[step].firstField.name] || '',
+          error: errors[formFields[step].firstField.name],
+        }}
+        secondField={{
+          value: answers[formFields[step].secondField.name] || '',
+          error: errors[formFields[step].secondField.name],
+        }}
+        onChange={handleAnswer}
+      />
+    );
+  }
+
+  if (currentFieldType === 'phone') {
+    return (
+      <PhoneField
+        field={formFields[step]}
+        value={answers[formFields[step].name] || ''}
+        onChange={handleAnswer}
+        error={errors[formFields[step].name]}
+      />
+    );
+  }
+
+  if (currentFieldType === 'password') {
+    return (
+      <PasswordField
+        field={formFields[step]}
+        onChange={handleAnswer}
+        password={{
+          name: 'password',
+          value: answers.password || '',
+          error: errors.password,
+        }}
+        confirmPassword={{
+          name: 'confirmPassword',
+          value: answers.confirmPassword || '',
+          error: errors.confirmPassword,
+        }}
+      />
+    );
+  }
 }

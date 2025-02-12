@@ -3,14 +3,15 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useRefreshToken } from '@/auth/_hooks/use-refresh-token';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+// import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useAuthStore } from '@/store/auth-store';
 
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const refresh = useRefreshToken();
   const { token } = useAuthStore();
-  const [remember] = useLocalStorage('remember', false);
+  // const [remember] = useLocalStorage('remember', false);
+  const remember = true;
 
   useEffect(() => {
     const abortController = new AbortController();

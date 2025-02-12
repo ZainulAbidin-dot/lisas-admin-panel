@@ -2,20 +2,23 @@ import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
 import { useAuthStore } from '@/store/auth-store';
+import { useState } from 'react';
+import { axiosInstance } from '@/api/axios-instance';
 
 export const useCreateProfile = () => {
-  const axiosPrivate = useAxiosPrivate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setToken } = useAuthStore();
   const navigate = useNavigate();
 
   const createProfile = async (values: Record<string, string>) => {
     try {
-      const response = await axiosPrivate.post('/profile/create', values);
-      console.log('Create Profile Response', response.data);
+      setIsSubmitting(true);
+      const response = await axiosInstance.post('/auth/register', values, {
+        withCredentials: true,
+      });
+      console.log("Register response", response);
       toast.success('Profile created successfully');
-
       setToken(response.data.data.accessToken);
       navigate('/');
     } catch (error) {
@@ -25,8 +28,10 @@ export const useCreateProfile = () => {
           ? error?.response?.data?.message || error?.message || 'Unknown Error'
           : 'Unknown Error';
       toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return { createProfile };
+  return { createProfile, isSubmitting };
 };

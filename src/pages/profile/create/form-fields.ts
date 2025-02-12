@@ -86,6 +86,43 @@ export const formFields: TFormField[] = [
     placeholder:
       'Select a file to upload your ID (e.g., photo of passport or license)',
   },
+  {
+    name: 'Name',
+    description: 'What is your name?',
+    type: 'double-text',
+
+    firstField: {
+      name: 'firstName',
+      label: 'First Name',
+      required: true,
+      placeholder: 'e.g. John',
+    },
+    secondField: {
+      name: 'lastName',
+      label: 'Last Name',
+      required: true,
+      placeholder: 'e.g. Doe',
+    },
+  },
+  {
+    name: 'email',
+    description: 'What is your email address?',
+    type: 'text',
+    required: true,
+    placeholder: 'e.g. johndoe@gmail.com',
+  },
+  {
+    name: 'phoneNumber',
+    description: 'What is your phone number?',
+    type: 'phone',
+    required: true,
+  },
+  {
+    name: 'password',
+    description: "Create a password for your account",
+    type: 'password',
+    required: true,
+  }
 ];
 
 export type TFormTextField = {
@@ -102,6 +139,29 @@ export type TFormTextareaField = {
   type: 'textarea';
   required: boolean;
   placeholder: string;
+};
+
+export type TFormDoubleTextField = {
+  name: string;
+  description: string;
+  type: 'double-text';
+  
+  firstField: Pick<TFormTextField, 'name' | 'required' | 'placeholder'> & { label: string };
+  secondField: Pick<TFormTextField, 'name' | 'required' | 'placeholder'> & { label: string };
+};
+
+export type TFormPhoneField = {
+  name: string;
+  description: string;
+  type: 'phone';
+  required: boolean;
+};
+
+export type TFormPasswordField = {
+  name: string;
+  description: string;
+  type: 'password';
+  required: boolean;
 };
 
 export type TFormRadioField = {
@@ -124,4 +184,7 @@ export type TFormField =
   | TFormTextField
   | TFormTextareaField
   | TFormRadioField
-  | TFormFileField;
+  | TFormFileField
+  | TFormDoubleTextField
+  | TFormPhoneField
+  | TFormPasswordField;

@@ -1,16 +1,16 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import PersistLogin from './auth/_components/persist-login';
-import RequireAuth from './auth/_components/require-auth';
-import { AuthRouter } from './auth/auth-router';
-import { AppLayout } from './components/shared/app-layout';
-import { Toaster } from './components/ui/sonner';
-import { ChatPage } from './pages/chat/chat-page';
-import { HomePage } from './pages/home';
-import { ProfileMatchPage } from './pages/profile-match/profile-match';
-import { CreateProfilePage } from './pages/profile/create/create-profile-page';
-import { ShowProfilePage } from './pages/profile/show/show-profile-page';
-import Subscription from './pages/subscription/subscription';
+import PersistLogin from '@/auth/_components/persist-login';
+import RequireAuth from '@/auth/_components/require-auth';
+import { AuthRouter } from '@/auth/auth-router';
+import { AppLayout } from '@/components/shared/app-layout';
+import { Toaster } from '@/components/ui/sonner';
+import { ChatPage } from '@/pages/chat/chat-page';
+import { HomePage } from '@/pages/home';
+import { ProfileMatchPage } from '@/pages/profile-match/profile-match';
+import { CreateProfilePage } from '@/pages/profile/create/create-profile-page';
+import { ShowProfilePage } from '@/pages/profile/show/show-profile-page';
+import Subscription from '@/pages/subscription/subscription';
 
 export function App() {
   return (
@@ -27,7 +27,7 @@ export function App() {
 
               {/* Profile Routes */}
               <Route path="profile">
-                <Route path="create" element={<CreateProfilePage />} />
+                {/* <Route path="create" element={<CreateProfilePage />} /> */}
                 <Route path="find-match" element={<ProfileMatchPage />} />
                 <Route path="show" element={<ShowProfilePage />} />
               </Route>
@@ -37,6 +37,7 @@ export function App() {
           </Route>
           {/* Persist Login end */}
 
+          <Route path="create" element={<CreateProfilePage />} />
           <Route path="/chat/*" element={<ChatPage />} />
           <Route path="/subscription" element={<Subscription />} />
         </Route>

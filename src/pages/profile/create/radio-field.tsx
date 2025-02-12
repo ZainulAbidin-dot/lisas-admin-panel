@@ -1,49 +1,28 @@
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
 
 import type {
   TFormRadioField,
-  TFormTextField,
-  TFormTextareaField,
 } from './form-fields';
 
-type FieldProps = TFormTextField | TFormTextareaField | TFormRadioField;
+type FieldProps =  TFormRadioField;
 
-interface QuestionFieldProps {
+interface RadioFieldProps {
   field: FieldProps;
   value: string;
   onChange: (name: string, value: string) => void;
   error?: string;
 }
 
-export function QuestionField({
+export function RadioField({
   field,
   value,
   onChange,
   error,
-}: QuestionFieldProps) {
+}: RadioFieldProps) {
   return (
     <div className="space-y-2">
       <Label>{field.description}</Label>
-      {field.type === 'text' && (
-        <Input
-          type="text"
-          name={field.name}
-          value={value}
-          onChange={(e) => onChange(field.name, e.target.value)}
-          placeholder={field.placeholder}
-        />
-      )}
-      {field.type === 'textarea' && (
-        <Textarea
-          name={field.name}
-          value={value}
-          onChange={(e) => onChange(field.name, e.target.value)}
-          placeholder={field.placeholder}
-        />
-      )}
       {field.type === 'radio' && field.options && (
         <RadioGroup
           value={value}
