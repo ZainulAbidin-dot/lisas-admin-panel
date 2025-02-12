@@ -15,7 +15,6 @@ type Token = {
   decoded: {
     userId: string;
     role: 'admin' | 'user';
-    profileId: string | undefined;
   };
 };
 

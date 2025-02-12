@@ -8,7 +8,6 @@ import { Toaster } from '@/components/ui/sonner';
 import { ChatPage } from '@/pages/chat/chat-page';
 import { HomePage } from '@/pages/home';
 import { ProfileMatchPage } from '@/pages/profile-match/profile-match';
-import { CreateProfilePage } from '@/pages/profile/create/create-profile-page';
 import { ShowProfilePage } from '@/pages/profile/show/show-profile-page';
 import Subscription from '@/pages/subscription/subscription';
 
@@ -16,7 +15,7 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="auth/*" element={<AuthRouter />} />
+        <Route path="/auth/*" element={<AuthRouter />} />
 
         <Route path="/" element={<AppLayout />}>
           {/* Persist Login */}
@@ -37,7 +36,6 @@ export function App() {
           </Route>
           {/* Persist Login end */}
 
-          <Route path="create" element={<CreateProfilePage />} />
           <Route path="/chat/*" element={<ChatPage />} />
           <Route path="/subscription" element={<Subscription />} />
         </Route>

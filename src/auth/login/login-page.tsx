@@ -1,7 +1,6 @@
-import { Outlet } from 'react-router-dom';
-
 import Image01 from '@/assets/images/image01.jpg';
 import { Card, CardContent } from '@/components/ui/card';
+import { LoginForm } from './login-form';
 
 export function AuthLayout() {
   return (
@@ -15,7 +14,7 @@ export function AuthLayout() {
           />
         </div>
         <CardContent className="flex w-full flex-col px-0 py-8 md:w-1/2 md:px-8">
-          <Outlet />
+          <LoginForm />
         </CardContent>
       </Card>
     </div>

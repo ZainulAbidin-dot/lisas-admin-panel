@@ -22,12 +22,9 @@ export const useLogin = () => {
         withCredentials: true, // To allow cookies to be sent with the request
       });
       console.log('Login Response: ', response.data);
-      const decodedToken = setToken(response.data.data.accessToken);
-      if (decodedToken.profileId) {
-        navigate(from);
-      } else {
-        navigate('/profile/create');
-      }
+      setToken(response.data.data.accessToken);
+
+      navigate(from);
     } catch (error) {
       console.error('Login Error: ', error);
       const errorMessage =
