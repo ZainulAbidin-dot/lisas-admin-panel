@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 
 import { isPossiblePhoneNumber } from 'react-phone-number-input';
 
@@ -18,7 +18,7 @@ export function CreateProfilePage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { createProfile,  } = useCreateProfile();
+  const { createProfile } = useCreateProfile();
 
   const handleNext = () => {
     const currentField = formFields[step];
@@ -28,7 +28,7 @@ export function CreateProfilePage() {
         let isValid = true;
         if (
           currentField.firstField.required &&
-          !answers[currentField.firstField.name] 
+          !answers[currentField.firstField.name]
         ) {
           setErrors((prev) => ({
             ...prev,
@@ -47,8 +47,8 @@ export function CreateProfilePage() {
           isValid = false;
         }
 
-        if(!isValid) return;
-        
+        if (!isValid) return;
+
         break;
       }
       case 'phone': {
@@ -69,7 +69,7 @@ export function CreateProfilePage() {
         break;
       }
       case 'password': {
-        if(!answers.password) {
+        if (!answers.password) {
           setErrors((prev) => ({
             ...prev,
             password: 'Password is required',
@@ -104,7 +104,6 @@ export function CreateProfilePage() {
     }
   };
 
-
   const handlePrevious = () => {
     setStep((prev) => Math.max(prev - 1, 0));
   };
@@ -115,40 +114,40 @@ export function CreateProfilePage() {
   };
 
   return (
-    <div className="flex flex-grow items-center justify-center px-4">
-      <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
-        <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
-        <div className="mt-4 flex justify-between items-center gap-3">
-          <p className="text-muted-foreground">
-            {(((step + 1) / formFields.length) * 100).toFixed(0)}%
-          </p>
-          <Progress value={((step + 1) / formFields.length) * 100} />
-        </div>
-        <div className="mt-6">
-           
-              <RenderStep
-                step={step}
-                answers={answers}
-                errors={errors}
-                handleAnswer={handleAnswer}
-              />
-        </div>
-        <div className="mt-6 flex justify-between">
-          <Button
-            onClick={handlePrevious}
-            disabled={step === 0}
-            className="hover:bg-[hsl(var(--primary-hover))]"
-          >
-            Previous
-          </Button>
-          
+    <div className="h-dvh flex items-center justify-center">
+      <div className="flex flex-grow items-center justify-center px-4">
+        <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
+          <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
+          <div className="mt-4 flex justify-between items-center gap-3">
+            <p className="text-muted-foreground">
+              {(((step + 1) / formFields.length) * 100).toFixed(0)}%
+            </p>
+            <Progress value={((step + 1) / formFields.length) * 100} />
+          </div>
+          <div className="mt-6">
+            <RenderStep
+              step={step}
+              answers={answers}
+              errors={errors}
+              handleAnswer={handleAnswer}
+            />
+          </div>
+          <div className="mt-6 flex justify-between">
             <Button
-            onClick={handleNext}
-            className="hover:bg-[hsl(var(--primary-hover))]"
-          >
-            Next
-          </Button>
-          
+              onClick={handlePrevious}
+              disabled={step === 0}
+              className="hover:bg-[hsl(var(--primary-hover))]"
+            >
+              Previous
+            </Button>
+
+            <Button
+              onClick={handleNext}
+              className="hover:bg-[hsl(var(--primary-hover))]"
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
