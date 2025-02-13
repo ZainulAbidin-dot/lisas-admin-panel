@@ -1,6 +1,9 @@
-import React, { useState } from "react";
-import { X } from "lucide-react";
-import image from '../../assets/images/image01.jpg'
+import { useState } from 'react';
+
+import { X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+import image from '../../assets/images/image01.jpg';
 
 const PopUp = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -28,14 +31,19 @@ const PopUp = () => {
         {/* Text Content */}
         <div className="text-center mt-4">
           <h2 className="text-xl font-bold px-6">It's time to connect!</h2>
-          <p className="text-gray-600">Finding people most <br/> relevant to you!</p>
+          <p className="text-gray-600">
+            Finding people most <br /> relevant to you!
+          </p>
         </div>
 
         {/* Button */}
         <div className="flex justify-center my-4">
-          <button className="bg-gradient-to-tr from-red-500 to-orange-500 text-white py-1 px-10 rounded-full text-lg font-semibold hover:bg-red-600">
+          <Link
+            to="/pricings"
+            className="bg-gradient-to-tr from-red-500 to-orange-500 text-white py-1 px-10 rounded-full text-lg font-semibold hover:bg-red-600"
+          >
             View Pricing
-          </button>
+          </Link>
         </div>
       </div>
     </div>

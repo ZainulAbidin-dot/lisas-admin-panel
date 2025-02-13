@@ -15,7 +15,7 @@ export function ShowProfilePage() {
     return <div>User not found</div>;
   }
 
-  console.log(userProfile);
+  console.log({ isLoading, userProfile });
 
   return (
     <div className="flex-grow w-full">

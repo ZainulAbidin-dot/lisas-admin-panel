@@ -6,7 +6,6 @@ import { AuthRouter } from '@/auth/auth-router';
 import { AppLayout } from '@/components/shared/app-layout';
 import { Toaster } from '@/components/ui/sonner';
 import { ChatPage } from '@/pages/chat/chat-page';
-import { HomePage } from '@/pages/home';
 import { ProfileMatchPage } from '@/pages/profile-match/profile-match';
 import { ShowProfilePage } from '@/pages/profile/show__old/show-profile-page';
 import Subscription from '@/pages/subscription/subscription';
@@ -24,7 +23,7 @@ export function App() {
           <Route element={<PersistLogin />}>
             {/* Require Auth */}
             <Route element={<RequireAuth />}>
-              <Route index element={<HomePage />} />
+              <Route index element={<ProfileMatchPage />} />
 
               {/* Profile Routes */}
               <Route path="profile">
@@ -32,14 +31,16 @@ export function App() {
                 <Route path="find-match" element={<ProfileMatchPage />} />
               </Route>
               {/* Profile Routes End */}
+
+              <Route path="/chat/*" element={<ChatPage />} />
+
+              <Route path="/pricings" element={<Subscription />} />
+
+              <Route path="/checkout" element={<Checkout />} />
             </Route>
             {/* Require Auth End */}
           </Route>
           {/* Persist Login end */}
-
-          <Route path="/chat/*" element={<ChatPage />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/checkout" element={<Checkout />} />
         </Route>
 
         {/* Testing Components */}

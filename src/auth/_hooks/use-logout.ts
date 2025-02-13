@@ -6,15 +6,17 @@ export const useLogout = () => {
 
   const logout = async () => {
     clearToken();
-    try {
-      const response = await axiosInstance.post('/auth/logout', {
-        withCredentials: true, // To allow cookies to be sent with the request
-      });
 
-      console.log('Logout Response: ', response.data);
-    } catch (err) {
-      console.log('Logout Error: ', err);
-    }
+    axiosInstance
+      .post('/auth/logout', {
+        withCredentials: true, // To allow cookies to be sent with the request
+      })
+      .then((response) => {
+        console.log('Logout Response: ', response.data);
+      })
+      .catch((err) => {
+        console.log('Logout Error: ', err);
+      });
   };
 
   return logout;

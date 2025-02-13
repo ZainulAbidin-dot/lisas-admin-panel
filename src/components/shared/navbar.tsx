@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
 import { Button } from '../ui/button';
 import { useSidebar } from '../ui/sidebar';
 
 export function Navbar() {
+  const { userHasSubscription, token } = useAuthStore();
   return (
     <nav
       className={cn(
@@ -18,10 +20,10 @@ export function Navbar() {
       <div className="flex-grow">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <ToggleSidebarButton />
+            {userHasSubscription ? <ToggleSidebarButton /> : null}
             <Logo />
           </div>
-          <UserProfile />
+          {token ? <UserProfile /> : null}
         </div>
       </div>
     </nav>

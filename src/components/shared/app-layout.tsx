@@ -11,28 +11,28 @@ import { Link, Outlet } from 'react-router-dom';
 
 import { useLogout } from '@/auth/_hooks/use-logout';
 import {
-  SidebarHeader,
-  SidebarProvider,
-  useSidebar,
-} from '@/components/ui/sidebar';
-import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarProvider,
+  useSidebar,
 } from '@/components/ui/sidebar';
+import { useAuthStore } from '@/store/auth-store';
 
 import { Button } from '../ui/button';
 import { Footer } from './footer';
 import { Navbar } from './navbar';
 
-export const AppLayout = () => {
+export function AppLayout() {
+  const { userHasSubscription } = useAuthStore();
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <SidebarProvider defaultOpen={false}>
+      {userHasSubscription ? <AppSidebar /> : null}
       <div className="w-full">
         <div className="flex flex-col min-h-screen min-h-svh">
           <Navbar />
@@ -44,7 +44,7 @@ export const AppLayout = () => {
       </div>
     </SidebarProvider>
   );
-};
+}
 
 // Menu items.
 const items = [

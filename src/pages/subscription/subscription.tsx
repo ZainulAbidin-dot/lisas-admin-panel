@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Link } from 'react-router-dom';
+
 import image from '../../assets/images/image01.jpg';
 
 const Subscription = () => {
@@ -80,9 +82,14 @@ const Subscription = () => {
                 <li>✔ 5 free Super Likes per week</li>
                 <li>✔ Passport - Match & chat</li>
               </ul>
-              <button className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)]">
-                Continue
-              </button>
+              <div className="flex justify-center">
+                <Link
+                  to="/checkout"
+                  className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)] text-center"
+                >
+                  Continue
+                </Link>
+              </div>
               <ul className="text-gray-600 p-6 text-sm">
                 <li>✔ 1 free Boost per month</li>
                 <li>✔ 5 free Super Likes per week</li>
@@ -105,9 +112,14 @@ const Subscription = () => {
                 <li>✔ 5 free Super Likes per week</li>
                 <li>✔ Passport - Match & chat</li>
               </ul>
-              <button className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)]">
-                Continue
-              </button>
+              <div className="flex justify-center">
+                <Link
+                  to="/checkout"
+                  className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)] text-center"
+                >
+                  Continue
+                </Link>
+              </div>
               <ul className="text-gray-600 p-6 text-sm">
                 <li>✔ 1 free Boost per month</li>
                 <li>✔ 5 free Super Likes per week</li>
@@ -120,16 +132,6 @@ const Subscription = () => {
         <p className="mt-6 font-bold  text-xl">
           Connect with a new friend or your money back.
         </p>
-
-        {/* CTA */}
-        {/* <div className="mt-4 flex space-x-4">
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-md">
-            Sign up
-            </button>
-            <button className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md">
-            Continue
-            </button>
-        </div> */}
       </div>
     </div>
   );

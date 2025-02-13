@@ -2,8 +2,12 @@ import { useState } from 'react';
 
 import { isPossiblePhoneNumber } from 'react-phone-number-input';
 
+import { ButtonWithLoader } from '@/components/composed/button-with-loader';
+import { Footer } from '@/components/shared/footer';
+import { Logo } from '@/components/shared/navbar';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 import { DoubleTextField } from './double-text-field';
 import { FileUploadField } from './file-upload-field';
@@ -15,12 +19,29 @@ import { TextField } from './text-field';
 import { useCreateProfile } from './use-create-profile';
 
 export function CreateProfilePage() {
+  return (
+    <div className="h-dvh flex flex-col">
+      <CreateProfilePageNav />
+
+      <CreateProfileForm />
+
+      <Footer />
+    </div>
+  );
+}
+
+function CreateProfileForm() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { createProfile } = useCreateProfile();
+  const {
+    createProfile,
+    checkIsEmailTaken,
+    isCheckingEmail,
+    isCreatingProfile,
+  } = useCreateProfile();
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const currentField = formFields[step];
 
     switch (currentField.type) {
@@ -96,6 +117,19 @@ export function CreateProfilePage() {
         }
     }
 
+    if (currentField.name === 'email') {
+      console.log('Email field is here', answers.email);
+      const { emailTaken, message } = await checkIsEmailTaken(answers.email);
+
+      if (emailTaken) {
+        setErrors((prev) => ({
+          ...prev,
+          email: message || 'Email already taken',
+        }));
+        return;
+      }
+    }
+
     setErrors({});
     setStep((prev) => Math.min(prev + 1, formFields.length - 1));
 
@@ -112,45 +146,52 @@ export function CreateProfilePage() {
     setAnswers((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
-
   return (
-    <div className="h-dvh flex items-center justify-center">
-      <div className="flex flex-grow items-center justify-center px-4">
-        <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
-          <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
-          <div className="mt-4 flex justify-between items-center gap-3">
-            <p className="text-muted-foreground">
-              {(((step + 1) / formFields.length) * 100).toFixed(0)}%
-            </p>
-            <Progress value={((step + 1) / formFields.length) * 100} />
-          </div>
-          <div className="mt-6">
-            <RenderStep
-              step={step}
-              answers={answers}
-              errors={errors}
-              handleAnswer={handleAnswer}
-            />
-          </div>
-          <div className="mt-6 flex justify-between">
-            <Button
-              onClick={handlePrevious}
-              disabled={step === 0}
-              className="hover:bg-[hsl(var(--primary-hover))]"
-            >
-              Previous
-            </Button>
+    <main className="flex flex-grow items-center justify-center px-4">
+      <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
+        <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
+        <div className="mt-4 flex justify-between items-center gap-3">
+          <p className="text-muted-foreground">
+            {(((step + 1) / formFields.length) * 100).toFixed(0)}%
+          </p>
+          <Progress value={((step + 1) / formFields.length) * 100} />
+        </div>
+        <div className="mt-6">
+          <RenderStep
+            step={step}
+            answers={answers}
+            errors={errors}
+            handleAnswer={handleAnswer}
+          />
+        </div>
+        <div className="mt-6 flex justify-between">
+          <Button
+            onClick={handlePrevious}
+            disabled={step === 0}
+            className="hover:bg-[hsl(var(--primary-hover))]"
+          >
+            Previous
+          </Button>
 
-            <Button
-              onClick={handleNext}
-              className="hover:bg-[hsl(var(--primary-hover))]"
-            >
-              Next
-            </Button>
-          </div>
+          <ButtonWithLoader
+            onClick={handleNext}
+            className="hover:bg-[hsl(var(--primary-hover))]"
+            isLoading={isCheckingEmail || isCreatingProfile}
+            disabled={Object.values(errors).filter(Boolean).length > 0}
+            loadingText={
+              isCheckingEmail
+                ? 'Checking email'
+                : isCreatingProfile
+                  ? 'Creating profile'
+                  : 'Unknown loading state'
+            }
+            initialText={
+              step === formFields.length - 1 ? 'Create Profile' : 'Next'
+            }
+          />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -245,4 +286,23 @@ function RenderStep({
       />
     );
   }
+}
+
+function CreateProfilePageNav() {
+  return (
+    <nav
+      className={cn(
+        'bg-primary text-primary-foreground',
+        'h-16 px-2 sm:px-4 flex items-center'
+      )}
+    >
+      <div className="flex-grow">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Logo />
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
 }

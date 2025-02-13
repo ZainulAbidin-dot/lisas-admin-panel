@@ -1,24 +1,31 @@
 import TinderCard from 'react-tinder-card';
 
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
+
 import heart from '../../assets/images/green-heart.png';
 import like from '../../assets/images/like.png';
 import nope from '../../assets/images/nope.png';
 import redX from '../../assets/images/red-x.png';
-import {
-  type TProfileSuggestion,
-  useGetProfileMatchSuggestions,
-  useProfileCardSwap,
-} from './use-profile-match';
+import PopUp from './pop-up';
+import { TProfileSuggestion, useProfileMatch } from './profile-match-context';
 
 type Direction = 'left' | 'right' | 'up' | 'down';
 
 const SwipeArea = () => {
-  const { isLoading, profileSuggestions } = useGetProfileMatchSuggestions();
-  const { handleLeftSwipe, handleRightSwipe } = useProfileCardSwap();
+  const { handleRightSwipe, handleLeftSwipe, profileSuggestions } =
+    useProfileMatch();
+  const [swipesCount, setSwipesCount] = useLocalStorage('swipesCount', 0);
+  const { userHasSubscription } = useAuthStore();
+
+  const noMoreSwipes = !userHasSubscription && swipesCount > 2;
 
   const handleSwipe = (dir: Direction, user: TProfileSuggestion): void => {
     const nopeElement = document.getElementById(`nope-${user.id}`);
     const likeElement = document.getElementById(`like-${user.id}`);
+
+    setSwipesCount(swipesCount + 1);
 
     if (dir === 'left' && nopeElement) {
       nopeElement.style.display = 'block';
@@ -39,13 +46,14 @@ const SwipeArea = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-
   return (
     <div className="relative w-full max-w-sm h-[28rem] mx-auto">
       {profileSuggestions.map((user) => (
         <TinderCard
-          className="absolute shadow-none bg-white"
+          className={cn(
+            'absolute shadow-none bg-white',
+            noMoreSwipes && 'pointer-events-none'
+          )}
           key={user.id}
           onSwipe={(dir) => handleSwipe(dir, user)}
           swipeRequirementType="position"
@@ -98,6 +106,7 @@ const SwipeArea = () => {
           </div>
         </TinderCard>
       ))}
+      {noMoreSwipes ? <PopUp /> : null}
     </div>
   );
 };

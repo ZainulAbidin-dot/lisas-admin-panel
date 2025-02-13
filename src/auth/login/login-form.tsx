@@ -5,7 +5,7 @@ import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
+import { ButtonWithLoader } from '@/components/composed/button-with-loader';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -109,15 +109,16 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <Button
+            <ButtonWithLoader
               variant="default"
               className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--primary-hover))]"
               type="submit"
               disabled={isSubmitting || isError}
-            >
-              <ArrowRight size={18} />
-              <span>Sign In</span>
-            </Button>
+              isLoading={isSubmitting}
+              loadingText="Signing in..."
+              initialIcon={<ArrowRight size={18} />}
+              initialText="Sign In"
+            />
           </div>
         </form>
       </Form>

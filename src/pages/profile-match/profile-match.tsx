@@ -1,19 +1,44 @@
 import MatchBar from './MatchBar';
 import SwipeCardComponent from './SwipeCardComponent';
+import { ProfileMatchProvider, useProfileMatch } from './profile-match-context';
 
-export const ProfileMatchPage = () => {
+export function ProfileMatchPage() {
+  return (
+    <ProfileMatchProvider>
+      <ProfileMatchPageComponent />
+    </ProfileMatchProvider>
+  );
+}
+
+function ProfileMatchPageComponent() {
+  const { isLoading, profileSuggestions } = useProfileMatch();
+
+  if (isLoading) return <ProfileMatchPageLoader />;
+
+  const profileSuggesstionsLength = profileSuggestions.length;
+
   return (
     <div className="flex flex-grow justify-between bg-gray-200">
       <MatchBar />
       <div className="flex flex-col w-full items-center p-4">
-        <div className="w-full p-6 overflow-hidden">
-          <SwipeCardComponent />
-        </div>
-        <div className="w-full md:w-[65%] p-4 text-white text-center text-[#042920] text-[24px] md:text-[30px] rounded-2xl mb-4">
-          Congratulations! You’ve Got 53+ New <br /> Matches with Shared
-          Interests!
+        <div className="h-full w-full p-6 flex flex-col">
+          <div className="flex h-full w-full items-center justify-center">
+            <SwipeCardComponent />
+          </div>
+          <p className="text-center text-primary font-semibold text-4xl mt-auto">
+            Congratulations! You’ve Got {profileSuggesstionsLength} New Matches
+            with Shared Interests!
+          </p>
         </div>
       </div>
     </div>
   );
-};
+}
+
+function ProfileMatchPageLoader() {
+  return (
+    <div className="flex flex-grow justify-center items-center">
+      <img src="/assets/profile-match-loader.gif" alt="loader" />
+    </div>
+  );
+}
