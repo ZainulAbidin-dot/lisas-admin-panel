@@ -28,38 +28,74 @@ const Checkout = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center px-6 py-8 bg-gray-100">
+    <div className="min-h-[fit-content] flex flex-col md:flex-row justify-center px-6 py-8 bg-gray-100">
       {/* Left Side - Form */}
       <div className="w-full md:w-1/2">
         <h2 className="text-2xl font-bold text-gray-800 mb-10">Connect with a new friend or your money back</h2>
         
         <div className='flex justify-start items-center gap-3'>
-            <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-bold">Name on Card</label>
-            <input type="text" placeholder="E.g. John Doe" className="w-full p-2 border rounded-md" />
+            <div className="w-1/2 mb-4">
+              <label className="block text-gray-600 text-sm font-bold">Name on Card</label>
+              <input type="text" placeholder="E.g. John Doe" className="w-full p-2 border rounded-md" />
             </div>
 
-            <div className="mb-4">
-            <label className="block text-gray-600 text-sm font-bold">Email Address</label>
-            <input type="email" placeholder="E.g. john@doe.com" className="w-full p-2 border rounded-md" />
+            <div className="w-1/2 mb-4">
+              <label className="block text-gray-600 text-sm font-bold">Email Address</label>
+              <input type="email" placeholder="E.g. john@doe.com" className="w-full p-2 border rounded-md" />
             </div>
         </div>
 
         <label className="block text-gray-600 text-sm font-bold mt-4">Credit / Debit Card *</label>
         <div className='flex justify-start items-center gap-3'>
-            <div className="mb-4">
-                <label className="block text-gray-600 text-sm">Card Number</label>
-                <input type="text" placeholder="1234 1234 1234 1234" className="w-full grow p-2 border rounded-md" />
+            <div className="mb-4 flex-grow-2">
+              <label className="block text-gray-600 text-sm">Card Number</label>
+                <div className="flex justify-start gap-2 bg-white p-2 border rounded-md">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <input
+                      key={index}
+                      type="tel"
+                      maxLength={4}
+                      placeholder="1234"
+                      className="w-1/6 text-left outline-none"
+                      required
+                      pattern="[0-9]{4}"
+                      onInput={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      if (target.value.length === 4 && target.nextElementSibling) {
+                        (target.nextElementSibling as HTMLInputElement).focus();
+                      }
+                      }}
+                    />
+                  ))}
+                </div>
             </div>
 
-            <div className="mb-4">
-                <label className="block text-gray-600 text-sm">Expiration Date</label>
-                <input type="text" placeholder="MM / YY" className="grow-0 p-2 border rounded-md" />
+            <div className="mb-4 flex-grow">
+              <label className="block text-gray-600 text-sm">Expiration Date</label>
+                <div className="flex bg-white border rounded-md p-2 gap-2">
+                <select className="text-left outline-none appearance-none px-1" required>
+                  <option value="">MM</option>
+                  {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
+                  {String(i + 1).padStart(2, '0')}
+                  </option>
+                  ))}
+                </select>
+                <div>/</div>
+                <select className=" text-left outline-none appearance-none px-1" required>
+                  <option value="">YY</option>
+                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map(year => (
+                  <option key={year} value={year.toString().slice(2)}>
+                    {year.toString().slice(2)}
+                  </option>
+                  ))}
+                </select>
+                </div>
             </div>
 
-            <div className="mb-4">
-                <label className="block text-gray-600 text-sm">Security Code</label>
-                <input type="text" placeholder="CVC" className="grow-0 p-2 border rounded-md" />
+            <div className="mb-4 flex-grow">
+              <label className="block text-gray-600 text-sm">Security Code</label>
+              <input type="tel" maxLength={3} placeholder="CVC" className="p-2 border rounded-md" required />
             </div>
         </div>
 
@@ -83,7 +119,7 @@ const Checkout = () => {
       </div>
 
       {/* Right Side - Timer & Benefits */}
-      <div className="w-full md:w-1/2 p-6 text-center">
+      <div className="w-full md:w-1/2 px-6 text-center">
         <div className="flex justify-center space-x-2 text-lg font-bold text-white bg-black px-4 py-2 rounded-lg">
           <span>{String(timeLeft.days).padStart(2, '0')} DAYS</span>
           <span>{String(timeLeft.hours).padStart(2, '0')} HRS</span>
@@ -91,7 +127,7 @@ const Checkout = () => {
           <span>{String(timeLeft.seconds).padStart(2, '0')} SECS</span>
         </div>
 
-        <h3 className="my-6 text-xl font-bold text-gray-700">Why You Should Complete Your Payment Now:</h3>
+        <h3 className="my-12 text-xl font-bold text-gray-700">Why You Should Complete Your Payment Now:</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className='flex flex-col items-center gap-3'>
               <div>✅</div>
@@ -114,7 +150,7 @@ const Checkout = () => {
               <div>Connect with incredible individuals instantly. Your information is stored securely and can be deleted anytime. If you don’t connect, we refund your money.</div>
           </div>
         </div>
-    </div>
+      </div>
     </div>
   );
 };
