@@ -77,7 +77,7 @@ export function ProfilePictureManager({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <CardContent className="mt-4 px-0">
             <FormItem>
-              <FormLabel>Profile Pictures</FormLabel>
+              <FormLabel className="sr-only">Profile Pictures</FormLabel>
               <FormControl>
                 <div className="flex flex-wrap gap-4">
                   {profilePictures
