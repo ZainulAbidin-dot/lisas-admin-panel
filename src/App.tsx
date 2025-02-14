@@ -11,6 +11,7 @@ import { ShowProfilePage } from '@/pages/profile/show__old/show-profile-page';
 import Subscription from '@/pages/subscription/subscription';
 
 import Checkout from './pages/payment/checkout';
+import { ShowProfilePage as ShowProfile } from './pages/profile/show/show-profile-page';
 
 export function App() {
   return (
@@ -44,6 +45,7 @@ export function App() {
         </Route>
 
         {/* Testing Components */}
+        <Route path="/show-profile" element={<ShowProfile />} />
       </Routes>
       <Toaster />
     </BrowserRouter>
