@@ -6,7 +6,33 @@ import { useAuthStore } from '@/store/auth-store';
 
 import stripe from '../../assets/images/stripe.jpg';
 
+import {Elements} from '@stripe/react-stripe-js';
+
+import {loadStripe} from '@stripe/stripe-js';
+
+import CheckoutForm from './checkout-form.tsx';
+
+import type { Stripe } from '@stripe/stripe-js';
+
 const Checkout = () => {
+  const [clientSecret, setClientSecret] = useState("");
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+
+  useEffect(() => {
+    setStripePromise(loadStripe('pk_test_51QsV1bRxLIzv3bGgd9hOg16S3jK0JjPLcBrmocpcJNNAO49hlvS50RfzQYvtiRCxPkdqU16pr6iyxsbqj2RtxQ9f00797badiP'));
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:5252/create-payment-intent", {
+      method: "POST",
+      body: JSON.stringify({}),
+    }).then(async (result) => {
+      var { clientSecret } = await result.json();
+      setClientSecret(clientSecret);
+    });
+  }, []);
+
+  
   const [timeLeft, setTimeLeft] = useState({
     days: 3,
     hours: 22,
@@ -40,8 +66,9 @@ const Checkout = () => {
   }, []);
 
   const handleClick = () => {
-    setUserHasSubscription(true);
-    navigate('/');
+
+    // setUserHasSubscription(true);
+    // navigate('/');
   };
 
   return (
@@ -76,92 +103,20 @@ const Checkout = () => {
           </div>
         </div>
 
-        <label className="block text-gray-600 text-sm font-bold mt-4">
+        <label className="mb-2 block text-gray-600 text-sm font-bold mt-4">
           Credit / Debit Card *
         </label>
         <div className="flex flex-col md:flex-row justify-start items-center gap-3">
           <div className="mb-4 w-full md:flex-grow-2">
-            <label className="block text-gray-600 text-sm">Card Number</label>
-            <div className="flex justify-start gap-2 bg-white p-2 border rounded-md">
-              {Array.from({ length: 4 }).map((_, index) => (
-          <input
-            key={index}
-            type="tel"
-            maxLength={4}
-            placeholder="1234"
-            className="w-1/4 md:w-1/6 text-left outline-none"
-            required
-            pattern="[0-9]{4}"
-            onInput={(e) => {
-              const target = e.target as HTMLInputElement;
-              if (
-                target.value.length === 4 &&
-                target.nextElementSibling
-              ) {
-                (target.nextElementSibling as HTMLInputElement).focus();
-              }
-            }}
-          />
-              ))}
-            </div>
+            {clientSecret && stripePromise && (
+              <Elements stripe={stripePromise} options={{clientSecret}}>
+                <CheckoutForm />
+              </Elements>
+            )}
           </div>
 
-          <div className="mb-4 w-full md:flex-grow">
-            <label className="block text-gray-600 text-sm">
-              Expiration Date
-            </label>
-            <div className="flex bg-white border rounded-md p-2 gap-2">
-              <select
-          className="text-left outline-none appearance-none px-1 w-1/2 md:w-auto"
-          required
-              >
-          <option value="">MM</option>
-          {Array.from({ length: 12 }, (_, i) => (
-            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-              {String(i + 1).padStart(2, '0')}
-            </option>
-          ))}
-              </select>
-              <div>/</div>
-              <select
-          className="text-left outline-none appearance-none px-1 w-1/2 md:w-auto"
-          required
-              >
-          <option value="">YY</option>
-          {Array.from(
-            { length: 10 },
-            (_, i) => new Date().getFullYear() + i
-          ).map((year) => (
-            <option key={year} value={year.toString().slice(2)}>
-              {year.toString().slice(2)}
-            </option>
-          ))}
-              </select>
-            </div>
-          </div>
 
-          <div className="mb-4 w-full md:flex-grow">
-            <label className="block text-gray-600 text-sm">Security Code</label>
-            <input
-              type="tel"
-              maxLength={3}
-              placeholder="CVC"
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
         </div>
-
-        <div className="mb-6">
-          <label className="block text-gray-600 text-sm">Country</label>
-          <select className="w-full p-2 border rounded-md">
-            <option>Pakistan</option>
-            <option>USA</option>
-            <option>UK</option>
-            <option>India</option>
-          </select>
-        </div>
-
         <button
           className=" bg-orange-500 text-white p-3 rounded-none font-bold text-lg hover:bg-orange-600"
           onClick={handleClick}
