@@ -65,11 +65,6 @@ export function SwipeArea() {
               src={user.profileImages?.[0] ?? '/assets/avatar.jpg'}
               alt={user.name}
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              onError={(event) => {
-                const currentTarget = event.currentTarget as HTMLImageElement;
-                currentTarget.onerror = null;
-                currentTarget.src = '/avatar.jpg';
-              }}
             />
 
             <div
@@ -88,7 +83,7 @@ export function SwipeArea() {
             <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-4">
               <div className="relative bottom-12">
                 <h2 className="text-2xl text-primary">
-                  {user.name}{' '}
+                  {user.name},
                   <span className="text-sm font-light">{user.age}</span>
                 </h2>
                 <p className="text-gray-300 font-light">{user.city}</p>

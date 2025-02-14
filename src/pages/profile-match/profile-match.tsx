@@ -13,8 +13,6 @@ export function ProfileMatchPage() {
 function ProfileMatchPageComponent() {
   const { isLoading, profileSuggestions } = useProfileMatch();
 
-  console.log(isLoading);
-
   if (isLoading) return <ProfileMatchPageLoader />;
 
   const profileSuggesstionsLength = profileSuggestions.length;

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useEffect, useState } from 'react';
 
 import { AxiosError } from 'axios';
@@ -21,7 +21,7 @@ export type TMatchProfile = {
   city: string;
   email: string;
   phone: string;
-  profileImage: string;
+  profileImage?: string;
 };
 
 export type TPendingProfile = {
@@ -29,7 +29,7 @@ export type TPendingProfile = {
   name: string;
   age: number;
   city: string;
-  profileImage: string;
+  profileImage?: string;
   senderId: string;
 };
 
@@ -40,8 +40,8 @@ interface ProfileMatchContextType {
   matchedProfiles: TMatchProfile[];
   handleRightSwipe: (userId: string) => void;
   handleLeftSwipe: (userId: string) => void;
-  handleDeleteMatchRequest: (matchId: string) => void;
-  handleAcceptMatchRequest: (matchId: string) => void;
+  handleDeleteMatchRequest: (matchId: string) => Promise<void>;
+  handleAcceptMatchRequest: (matchId: string) => Promise<void>;
 }
 
 const ProfileMatchContext = createContext<ProfileMatchContextType | undefined>(
@@ -57,89 +57,77 @@ export function ProfileMatchProvider({
 
   const { data: profileSuggestions, isLoading: isLoadingSuggestions } =
     useFetchData<TProfileSuggestion[]>('/profile/matches/suggestions');
-  const { data: pendingProfiles, isLoading: isLoadingPendingMatches } =
-    useFetchData<TPendingProfile[]>('/profile/matches/pending-profiles');
+
+  const {
+    data: pendingProfiles,
+    setData: setPendingProfiles,
+    isLoading: isLoadingPendingMatches,
+  } = useFetchData<TPendingProfile[]>('/profile/matches/pending-profiles');
+
   const { data: matchedProfiles, isLoading: isLoadingMatchedProfiles } =
     useFetchData<TMatchProfile[]>('/profile/matches/matched-profiles');
 
-  const handleSwipe = useCallback(
-    async (userId: string, direction: 'right' | 'left') => {
-      try {
-        const response = await axiosInstance.post(
-          `/profile/matches/swipe-${direction}`,
-          { userId }
-        );
-        toast.success(response.data.message);
-      } catch (error) {
-        console.error('Swipe Error: ', error);
-        const errorMessage =
-          error instanceof AxiosError
-            ? error?.response?.data?.message ||
-              error?.message ||
-              'Unknown Error'
-            : `Error processing ${direction} swipe`;
-        toast.error(errorMessage);
-      }
-    },
-    [axiosInstance]
-  );
+  const handleSwipe = async (userId: string, direction: 'right' | 'left') => {
+    try {
+      const response = await axiosInstance.post(
+        `/profile/matches/swipe-${direction}`,
+        { userId }
+      );
 
-  const handleDeleteMatchRequest = useCallback(
-    async (matchId: string) => {
-      try {
-        const response = await axiosInstance.delete(
-          `/profile/matches/requests`,
-          {
-            data: {
-              matchId,
-            },
-          }
-        );
-        toast.success(response.data.message);
-      } catch (error) {
-        console.error('Delete Match Request Error: ', error);
-        const errorMessage =
-          error instanceof AxiosError
-            ? error?.response?.data?.message ||
-              error?.message ||
-              'Unknown Error'
-            : 'Unknown Error';
-        toast.error(errorMessage);
-      }
-    },
-    [axiosInstance]
-  );
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error('Swipe Error: ', error);
+      const errorMessage =
+        error instanceof AxiosError
+          ? error?.response?.data?.message || error?.message || 'Unknown Error'
+          : `Error processing ${direction} swipe`;
+      toast.error(errorMessage);
+    }
+  };
 
-  const handleAcceptMatchRequest = useCallback(
-    async (matchId: string) => {
-      try {
-        const response = await axiosInstance.post(
-          `/profile/matches/requests/accept`,
-          {
-            matchId,
-          }
-        );
-        toast.success(response.data.message);
-      } catch (error) {
-        console.error('Accept Match Request Error: ', error);
-        const errorMessage =
-          error instanceof AxiosError
-            ? error?.response?.data?.message ||
-              error?.message ||
-              'Unknown Error'
-            : 'Unknown Error';
-        toast.error(errorMessage);
-      }
-    },
-    [axiosInstance]
-  );
+  const handleDeleteMatchRequest = async (matchId: string) => {
+    try {
+      const response = await axiosInstance.delete(`/profile/matches/requests`, {
+        data: {
+          matchId,
+        },
+      });
+      setPendingProfiles((prev) => prev!.filter((p) => p.id !== matchId));
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error('Delete Match Request Error: ', error);
+      const errorMessage =
+        error instanceof AxiosError
+          ? error?.response?.data?.message || error?.message || 'Unknown Error'
+          : 'Unknown Error';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleAcceptMatchRequest = async (matchId: string) => {
+    try {
+      const response = await axiosInstance.post(
+        `/profile/matches/requests/accept`,
+        {
+          matchId,
+        }
+      );
+
+      setPendingProfiles((prev) => prev!.filter((p) => p.id !== matchId));
+
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error('Accept Match Request Error: ', error);
+      const errorMessage =
+        error instanceof AxiosError
+          ? error?.response?.data?.message || error?.message || 'Unknown Error'
+          : 'Unknown Error';
+      toast.error(errorMessage);
+    }
+  };
 
   const isLoading =
     isLoadingSuggestions || isLoadingPendingMatches || isLoadingMatchedProfiles;
-
-  console.log(profileSuggestions);
-  console.log(pendingProfiles);
-  console.log(matchedProfiles);
 
   return (
     <ProfileMatchContext.Provider
@@ -178,28 +166,29 @@ function useFetchData<T>(url: string) {
   useEffect(() => {
     const abortController = new AbortController();
 
+    setIsLoading(true); // ✅ Set loading state BEFORE fetchData runs
+
     async function fetchData() {
       try {
-        setIsLoading(true);
         const response = await axiosPrivate.get(url, {
           signal: abortController.signal,
         });
         setData(response.data.data.profiles);
       } catch (error) {
-        if (error instanceof Error) {
-          if (error.name !== 'CanceledError') {
-            console.error('Login Error: ', error);
-            const errorMessage =
-              error instanceof AxiosError
-                ? error?.response?.data?.message ||
-                  error?.message ||
-                  'Unknown Error'
-                : 'Unknown Error';
-            toast.error(errorMessage);
-          }
+        if (error instanceof Error && error.name !== 'CanceledError') {
+          console.error('Fetch Error:', error);
+          const errorMessage =
+            error instanceof AxiosError
+              ? error?.response?.data?.message ||
+                error?.message ||
+                'Unknown Error'
+              : 'Unknown Error';
+          toast.error(errorMessage);
         }
       } finally {
-        setIsLoading(false);
+        if (!abortController.signal.aborted) {
+          setIsLoading(false); // ✅ Only set loading to false if request wasn't aborted
+        }
       }
     }
 
@@ -209,5 +198,5 @@ function useFetchData<T>(url: string) {
     };
   }, [axiosPrivate, url]);
 
-  return { data, isLoading };
+  return { data, setData, isLoading };
 }

@@ -1,4 +1,12 @@
-import { CheckIcon, MailIcon, PhoneIcon, XIcon } from 'lucide-react';
+import { useState } from 'react';
+
+import {
+  CheckIcon,
+  Loader2Icon,
+  MailIcon,
+  PhoneIcon,
+  XIcon,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,9 +19,15 @@ import {
   useProfileMatch,
 } from './profile-match-context';
 
+const DEFAULT_AVATAR = '/assets/avatar.jpg';
+
 export function ProfileMatchSidebar() {
-  const { pendingProfiles, matchedProfiles, handleDeleteMatchRequest } =
-    useProfileMatch();
+  const {
+    pendingProfiles,
+    matchedProfiles,
+    handleDeleteMatchRequest,
+    handleAcceptMatchRequest,
+  } = useProfileMatch();
   const { token } = useAuthStore();
 
   if (!token) return null;
@@ -35,7 +49,7 @@ export function ProfileMatchSidebar() {
                 key={profile.id}
                 profile={profile}
                 currentUserId={currentUserId}
-                onAccept={console.log}
+                onAccept={handleAcceptMatchRequest}
                 onDelete={handleDeleteMatchRequest}
               />
             ))}
@@ -58,7 +72,7 @@ function MatchedProfileCard({ profile }: { profile: TMatchProfile }) {
   return (
     <Card className="p-3 rounded-xl shadow-md flex w-full min-h-[120px] items-center space-x-3">
       <img
-        src={profile.profileImage}
+        src={profile.profileImage ?? DEFAULT_AVATAR}
         alt={profile.name}
         className="w-20 h-20 object-cover rounded-lg"
       />
@@ -90,14 +104,31 @@ function PendingProfileCard({
 }: {
   profile: TPendingProfile;
   currentUserId: string;
-  onAccept: (id: string) => void;
-  onDelete: (id: string) => void;
+  onAccept: (id: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }) {
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isSender = profile.senderId === currentUserId;
+
+  const handleAccept = async () => {
+    setIsAccepting(true);
+    await onAccept(profile.id);
+    setIsAccepting(false);
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    await onDelete(profile.id);
+    setIsDeleting(false);
+  };
+
+  const isLoading = isAccepting || isDeleting;
+
   return (
     <Card className="p-3 rounded-xl shadow-md flex w-full h-[120px] items-center space-x-3">
       <img
-        src={profile.profileImage}
+        src={profile.profileImage ?? DEFAULT_AVATAR}
         alt={profile.name}
         className="w-20 h-20 object-cover rounded-lg"
       />
@@ -111,18 +142,28 @@ function PendingProfileCard({
             <Button
               variant="default"
               size="sm"
-              onClick={() => onAccept(profile.id)}
+              onClick={handleAccept}
+              disabled={isLoading}
             >
-              <CheckIcon className="w-4 h-4" />
+              {isAccepting ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                <CheckIcon className="size-4" />
+              )}
               <span className="sr-only">Accept</span>
             </Button>
           ) : null}
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onDelete(profile.id)}
+            onClick={handleDelete}
+            disabled={isLoading}
           >
-            <XIcon className="w-4 h-4" />
+            {isDeleting ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : (
+              <XIcon className="size-4" />
+            )}
             <span className="sr-only">Delete</span>
           </Button>
         </div>
