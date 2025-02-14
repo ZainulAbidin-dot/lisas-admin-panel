@@ -2,9 +2,9 @@ const FullPriceSubscription = () => {
   return (
     <div className="flex flex-col justify-center items-center py-4 px-14">
       {/* FullPriceSubscription Plans */}
-      <div className="grid md:grid-cols-2 gap-6 mt-6">
+      <p className="text-sm font-bold mt-6">Select a plan</p>
+      <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <p className="text-sm font-bold">Select a plan</p>
           <div className="text-center border border-orange-500 rounded-md my-4 p-4">
             <h3 className="text-xl font-bold mb-2">Monthly</h3>
             <p className="text-gray-700 mb-2">$12/m</p>
@@ -30,7 +30,6 @@ const FullPriceSubscription = () => {
         </div>
 
         <div>
-          <p className="text-sm font-bold">Select a plan</p>
           <div className="text-center border border-2 border-orange-500 rounded-md my-4 p-4">
             <h3 className="text-xl font-bold mb-2">Yearly (Save 30%)</h3>
             <p className="text-gray-700 mb-2">$99/Year</p>
@@ -56,7 +55,7 @@ const FullPriceSubscription = () => {
         </div>
       </div>
 
-      <button className="my-4 bg-gradient-to-tr from-[#fa4737] to-orange-400 text-white font-bold px-14 py-1 rounded-full w-[fit-content] shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)]">
+      <button className="mt-6 bg-gradient-to-tr from-[#fa4737] to-orange-400 text-white font-bold px-14 py-1 rounded-full w-[fit-content] shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)]">
         Cancel Subscription
       </button>
 

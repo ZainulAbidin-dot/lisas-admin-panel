@@ -79,74 +79,74 @@ const Checkout = () => {
         <label className="block text-gray-600 text-sm font-bold mt-4">
           Credit / Debit Card *
         </label>
-        <div className="flex justify-start items-center gap-3">
-          <div className="mb-4 flex-grow-2">
+        <div className="flex flex-col md:flex-row justify-start items-center gap-3">
+          <div className="mb-4 w-full md:flex-grow-2">
             <label className="block text-gray-600 text-sm">Card Number</label>
             <div className="flex justify-start gap-2 bg-white p-2 border rounded-md">
               {Array.from({ length: 4 }).map((_, index) => (
-                <input
-                  key={index}
-                  type="tel"
-                  maxLength={4}
-                  placeholder="1234"
-                  className="w-1/6 text-left outline-none"
-                  required
-                  pattern="[0-9]{4}"
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    if (
-                      target.value.length === 4 &&
-                      target.nextElementSibling
-                    ) {
-                      (target.nextElementSibling as HTMLInputElement).focus();
-                    }
-                  }}
-                />
+          <input
+            key={index}
+            type="tel"
+            maxLength={4}
+            placeholder="1234"
+            className="w-1/4 md:w-1/6 text-left outline-none"
+            required
+            pattern="[0-9]{4}"
+            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              if (
+                target.value.length === 4 &&
+                target.nextElementSibling
+              ) {
+                (target.nextElementSibling as HTMLInputElement).focus();
+              }
+            }}
+          />
               ))}
             </div>
           </div>
 
-          <div className="mb-4 flex-grow">
+          <div className="mb-4 w-full md:flex-grow">
             <label className="block text-gray-600 text-sm">
               Expiration Date
             </label>
             <div className="flex bg-white border rounded-md p-2 gap-2">
               <select
-                className="text-left outline-none appearance-none px-1"
-                required
+          className="text-left outline-none appearance-none px-1 w-1/2 md:w-auto"
+          required
               >
-                <option value="">MM</option>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
-                    {String(i + 1).padStart(2, '0')}
-                  </option>
-                ))}
+          <option value="">MM</option>
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i + 1} value={String(i + 1).padStart(2, '0')}>
+              {String(i + 1).padStart(2, '0')}
+            </option>
+          ))}
               </select>
               <div>/</div>
               <select
-                className=" text-left outline-none appearance-none px-1"
-                required
+          className="text-left outline-none appearance-none px-1 w-1/2 md:w-auto"
+          required
               >
-                <option value="">YY</option>
-                {Array.from(
-                  { length: 10 },
-                  (_, i) => new Date().getFullYear() + i
-                ).map((year) => (
-                  <option key={year} value={year.toString().slice(2)}>
-                    {year.toString().slice(2)}
-                  </option>
-                ))}
+          <option value="">YY</option>
+          {Array.from(
+            { length: 10 },
+            (_, i) => new Date().getFullYear() + i
+          ).map((year) => (
+            <option key={year} value={year.toString().slice(2)}>
+              {year.toString().slice(2)}
+            </option>
+          ))}
               </select>
             </div>
           </div>
 
-          <div className="mb-4 flex-grow">
+          <div className="mb-4 w-full md:flex-grow">
             <label className="block text-gray-600 text-sm">Security Code</label>
             <input
               type="tel"
               maxLength={3}
               placeholder="CVC"
-              className="p-2 border rounded-md"
+              className="w-full p-2 border rounded-md"
               required
             />
           </div>
@@ -169,7 +169,7 @@ const Checkout = () => {
           Claim My Membership for $99 Now!
         </button>
 
-        <div className="mt-8 flex justify-start space-x-4">
+        <div className="my-8 flex justify-start space-x-4">
           <img src={stripe} alt="Visa" className="" />
         </div>
       </div>
@@ -186,7 +186,7 @@ const Checkout = () => {
         <h3 className="my-12 text-xl font-bold text-gray-700">
           Why You Should Complete Your Payment Now:
         </h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col items-center gap-3">
             <div>✅</div>
             <div>

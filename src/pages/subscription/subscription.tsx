@@ -40,7 +40,7 @@ const Subscription = () => {
 
   return (
     <div className="flex flex-col md:flex-row">
-      <div className="w-2/3">
+      <div className="w-full md:w-2/3">
         <img
           src={image}
           alt="Subscription Offer"
@@ -48,8 +48,8 @@ const Subscription = () => {
         />
       </div>
 
-      <div className="min-h-screen flex flex-col items-center justify-center py-4 px-14">
-        <h2 className="text-2xl text-center font-bold text-gray-800 mb-2">
+      <div className="min-h-screen flex flex-col items-center justify-center py-4 px-2 md:px-14">
+        <h2 className="text-2xl text-center font-bold text-gray-800 mb-4">
           You've been selected for a 30% premium discount!
         </h2>
 
@@ -129,7 +129,7 @@ const Subscription = () => {
           </div>
         </div>
 
-        <p className="mt-6 font-bold  text-xl">
+        <p className="mt-6 font-bold  text-xl text-center">
           Connect with a new friend or your money back.
         </p>
       </div>
