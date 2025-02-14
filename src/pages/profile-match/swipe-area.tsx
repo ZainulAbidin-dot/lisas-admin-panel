@@ -13,7 +13,7 @@ import { TProfileSuggestion, useProfileMatch } from './profile-match-context';
 
 type Direction = 'left' | 'right' | 'up' | 'down';
 
-const SwipeArea = () => {
+export function SwipeArea() {
   const { handleRightSwipe, handleLeftSwipe, profileSuggestions } =
     useProfileMatch();
   const [swipesCount, setSwipesCount] = useLocalStorage('swipesCount', 0);
@@ -62,7 +62,7 @@ const SwipeArea = () => {
         >
           <div className="card w-[20rem] h-[28rem] select-none rounded-lg overflow-hidden border border-gray-200 relative">
             <img
-              src={user.profileImageUrl ?? '/avatar.jpg'}
+              src={user.profileImages?.[0] ?? '/assets/avatar.jpg'}
               alt={user.name}
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               onError={(event) => {
@@ -87,12 +87,11 @@ const SwipeArea = () => {
 
             <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-4">
               <div className="relative bottom-12">
-                <h2 className="text-2xl text-white">
+                <h2 className="text-2xl text-primary">
                   {user.name}{' '}
                   <span className="text-sm font-light">{user.age}</span>
                 </h2>
                 <p className="text-gray-300 font-light">{user.city}</p>
-                <p className="text-gray-300 font-light">{user.email}</p>
               </div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
                 <button className="py-2 rounded-full shadow-md">
@@ -109,6 +108,4 @@ const SwipeArea = () => {
       {noMoreSwipes ? <PopUp /> : null}
     </div>
   );
-};
-
-export default SwipeArea;
+}

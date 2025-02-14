@@ -7,7 +7,6 @@ import { AppLayout } from '@/components/shared/app-layout';
 import { Toaster } from '@/components/ui/sonner';
 import { ChatPage } from '@/pages/chat/chat-page';
 import { ProfileMatchPage } from '@/pages/profile-match/profile-match';
-import { ShowProfilePage } from '@/pages/profile/show__old/show-profile-page';
 import Subscription from '@/pages/subscription/subscription';
 
 import Checkout from './pages/payment/checkout';
@@ -28,7 +27,8 @@ export function App() {
 
               {/* Profile Routes */}
               <Route path="profile">
-                <Route path="show" element={<ShowProfilePage />} />
+                <Route path="show" element={<ShowProfile />} />
+
                 <Route path="find-match" element={<ProfileMatchPage />} />
               </Route>
               {/* Profile Routes End */}
@@ -45,7 +45,6 @@ export function App() {
         </Route>
 
         {/* Testing Components */}
-        <Route path="/show-profile" element={<ShowProfile />} />
       </Routes>
       <Toaster />
     </BrowserRouter>

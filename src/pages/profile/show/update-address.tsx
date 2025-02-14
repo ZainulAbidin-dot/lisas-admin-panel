@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SaveIcon } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 
-import { PhoneNumberInput } from '@/components/composed/phone-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -20,69 +19,54 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 import {
-  type TUpdatePersonalInfo,
-  updatePersonalInfoSchema,
-  useUpdatePersonalInformation,
-} from './_hooks/use-update-personal-information';
+  type TUpdateAddress,
+  updateAddressSchema,
+  useUpdateAddress,
+} from './_hooks/use-update-address';
 
-export function UpdatePersonalInfo({
-  personalInfo,
-}: {
-  personalInfo: TUpdatePersonalInfo;
-}) {
+export function UpdateAddress({ address }: { address: TUpdateAddress }) {
   const form = useForm({
-    resolver: zodResolver(updatePersonalInfoSchema),
-    defaultValues: personalInfo,
+    resolver: zodResolver(updateAddressSchema),
+    defaultValues: address,
   });
 
-  const { updatePersonalInformation, isSubmitting } =
-    useUpdatePersonalInformation();
+  const { updateAddress, isSubmitting } = useUpdateAddress();
 
   return (
-    <Card className="p-6 bg-transparent shadow-sm">
-      <h2 className="text-3xl font-bold mb-2">User Details</h2>
-      <p className="text-gray-500 text-sm">Update personal information.</p>
+    <Card className="p-6 bg-transparent">
+      <h2 className="text-3xl font-bold mb-2">Address</h2>
+      <p className="text-gray-500 text-sm">update your complete address.</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(updatePersonalInformation)}>
+        <form onSubmit={form.handleSubmit(updateAddress)}>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
-            <TextInputWithLabel<TUpdatePersonalInfo>
-              nameInSchema="firstName"
-              displayName="First Name"
-              placeholder="Enter first name"
+            <TextInputWithLabel<TUpdateAddress>
+              nameInSchema="address"
+              displayName="Sreet Address"
+              placeholder="Enter street address"
               type="text"
             />
 
-            <TextInputWithLabel<TUpdatePersonalInfo>
-              nameInSchema="lastName"
-              displayName="Last Name"
-              placeholder="Enter ast name"
+            <TextInputWithLabel<TUpdateAddress>
+              nameInSchema="city"
+              displayName="City"
+              placeholder="Enter city"
               type="text"
             />
 
-            <TextInputWithLabel<TUpdatePersonalInfo>
-              nameInSchema="email"
-              displayName="Email"
-              placeholder="Enter email"
-              type="email"
+            <TextInputWithLabel<TUpdateAddress>
+              nameInSchema="zipCode"
+              displayName="Zip Code"
+              placeholder="Enter zip code"
+              type="text"
             />
 
             {/* Phone Number */}
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone number</FormLabel>
-                  <FormControl>
-                    <PhoneNumberInput
-                      value={field.value}
-                      onChange={(value) => field.onChange(value || '')}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <TextInputWithLabel<TUpdateAddress>
+              nameInSchema="country"
+              displayName="Country"
+              placeholder="Enter country"
+              type="text"
             />
           </CardContent>
 

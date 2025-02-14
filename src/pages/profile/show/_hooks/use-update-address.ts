@@ -6,33 +6,28 @@ import { z } from 'zod';
 
 import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
 
-export const updateCompleteAddressSchema = z.object({
-  streetAddress: z.string().nonempty('Street address is required'),
+export const updateAddressSchema = z.object({
+  address: z.string().nonempty('Street address is required'),
   city: z.string().nonempty('City is required'),
   country: z.string().nonempty('Country is required'),
   zipCode: z.string().nonempty('Zip code is required'),
 });
 
-export type TUpdateCompleteAddress = z.infer<
-  typeof updateCompleteAddressSchema
->;
+export type TUpdateAddress = z.infer<typeof updateAddressSchema>;
 
-export function useUpdateCompleteAddress() {
+export function useUpdateAddress() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const axiosInstance = useAxiosPrivate();
 
-  const updateCompleteAddress = async (values: TUpdateCompleteAddress) => {
+  const updateAddress = async (values: TUpdateAddress) => {
     try {
       setIsSubmitting(true);
-      const response = await axiosInstance.put(
-        '/profile/me/personal-data',
-        values
-      );
-      console.log('Update Complete Address Response: ', response.data);
-      toast.success('Complete Address updated successfully');
+      const response = await axiosInstance.put('/profile/me/address', values);
+      console.log('Update Address Response: ', response.data);
+      toast.success('Address updated successfully');
     } catch (error) {
-      console.error('Update Complete Address Error: ', error);
+      console.error('Update Address Error: ', error);
       const errorMessage =
         error instanceof AxiosError
           ? error?.response?.data?.message || error?.message || 'Unknown Error'
@@ -43,5 +38,5 @@ export function useUpdateCompleteAddress() {
     }
   };
 
-  return { updateCompleteAddress, isSubmitting };
+  return { updateAddress, isSubmitting };
 }

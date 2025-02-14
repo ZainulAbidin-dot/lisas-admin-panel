@@ -21,7 +21,6 @@ type ProfileData = {
     | 'once-a-week'
     | 'once-a-month'
     | 'once-every-three-months';
-  city: string;
   age:
     | 'under-18'
     | '18-24'
@@ -34,12 +33,26 @@ type ProfileData = {
   discussionTopics: string;
   friendExpectations: string;
   idVerification?: string | undefined;
-  profileImage?: string | undefined;
+};
+
+type ProfilePic = {
+  id: string;
+  url: string;
+};
+
+type Address = {
+  address: string;
+  city: string;
+  country: string;
+  zipCode: string;
 };
 
 type User = {
   personalData: PersonalData;
-  profileData: ProfileData | null;
+  profileData: ProfileData;
+  profilePics: ProfilePic[];
+  address: Address;
+  hobbies: string[];
 };
 
 export function useGetUserProfile() {
@@ -52,12 +65,12 @@ export function useGetUserProfile() {
     (abortController: AbortController) => {
       setIsLoading(true);
       axiosInstance
-        .get<{ data: { user: User }; message: string }>('/profile/me', {
+        .get('/profile/me', {
           signal: abortController.signal,
         })
         .then((response) => {
-          if (response.data.data.user) {
-            setUser(response.data.data.user);
+          if (response.data.data) {
+            setUser(response.data.data);
             toast.success(response.data.message);
           } else {
             throw new Error(`Response format is not valid`);

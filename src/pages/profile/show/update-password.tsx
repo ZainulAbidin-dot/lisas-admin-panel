@@ -49,16 +49,19 @@ export function UpdatePassword() {
               displayName="Old Password"
               nameInSchema="oldPassword"
               placeholder="Enter current password"
+              autoComplete="current-password"
             />
             <PasswordInput<TUpdatePassword>
               displayName="New Password"
               nameInSchema="newPassword"
               placeholder="Enter new password"
+              autoComplete="new-password"
             />
             <PasswordInput<TUpdatePassword>
               displayName="Confirm Password"
               nameInSchema="confirmNewPassword"
               placeholder="Confirm new password"
+              autoComplete="new-password"
             />
           </CardContent>
 

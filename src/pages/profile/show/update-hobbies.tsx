@@ -18,21 +18,30 @@ import { cn } from '@/lib/utils';
 import { TUpdateHobbies, useUpdateHobbies } from './_hooks/use-update-hobbies';
 
 const hobbiesList = [
-  'Reading',
-  'Listening to Music',
-  'Arts & Crafts',
-  'Going for Walks',
-  'Yoga & Meditation',
-  'Traveling',
-  'Gardening',
-  'Playing Board Games & Cards',
-  'Cooking & Baking',
-  'Watching Classic Movies',
+  { label: 'Reading', value: 'reading' },
+  { label: 'Listening to Music', value: 'listening-to-music' },
+  { label: 'Arts & Crafts', value: 'arts-and-crafts' },
+  { label: 'Going for Walks', value: 'going-for-walks' },
+  { label: 'Yoga & Meditation', value: 'yoga-and-meditation' },
+  { label: 'Traveling', value: 'traveling' },
+  { label: 'Gardening', value: 'gardening' },
+  {
+    label: 'Playing Board Games & Cards',
+    value: 'playing-board-games-and-cards',
+  },
+  { label: 'Cooking & Baking', value: 'cooking-and-baking' },
+  { label: 'Watching Classic Movies', value: 'watching-classic-movies' },
 ];
 
-export function UpdateHobbies() {
+export function UpdateHobbies({
+  hobbies,
+}: {
+  hobbies: TUpdateHobbies['hobbies'];
+}) {
   const form = useForm<TUpdateHobbies>({
-    defaultValues: { hobbies: [] },
+    defaultValues: {
+      hobbies: hobbies ?? [],
+    },
   });
 
   const { watch, setValue } = form;
@@ -66,16 +75,16 @@ export function UpdateHobbies() {
                     <div className="flex flex-wrap gap-2">
                       {hobbiesList.map((hobby) => (
                         <Badge
-                          key={hobby}
-                          onClick={() => toggleHobby(hobby)}
+                          key={hobby.value}
+                          onClick={() => toggleHobby(hobby.value)}
                           className={cn(
                             'cursor-pointer px-3 py-1 rounded-lg transition-colors',
-                            selectedHobbies.includes(hobby)
+                            selectedHobbies.includes(hobby.value)
                               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                               : 'bg-gray-200 text-gray-700 hover:bg-accent'
                           )}
                         >
-                          {hobby}
+                          {hobby.label}
                         </Badge>
                       ))}
                     </div>

@@ -1,6 +1,6 @@
-import MatchBar from './MatchBar';
-import SwipeCardComponent from './SwipeCardComponent';
+import { ProfileMatchSidebar } from './MatchBar';
 import { ProfileMatchProvider, useProfileMatch } from './profile-match-context';
+import { SwipeArea } from './swipe-area';
 
 export function ProfileMatchPage() {
   return (
@@ -13,17 +13,19 @@ export function ProfileMatchPage() {
 function ProfileMatchPageComponent() {
   const { isLoading, profileSuggestions } = useProfileMatch();
 
+  console.log(isLoading);
+
   if (isLoading) return <ProfileMatchPageLoader />;
 
   const profileSuggesstionsLength = profileSuggestions.length;
 
   return (
     <div className="flex flex-grow justify-between bg-gray-200">
-      <MatchBar />
+      <ProfileMatchSidebar />
       <div className="flex flex-col w-full items-center p-4">
         <div className="h-full w-full p-6 flex flex-col">
           <div className="flex h-full w-full items-center justify-center">
-            <SwipeCardComponent />
+            <SwipeArea />
           </div>
           <p className="text-center text-primary font-semibold text-4xl mt-auto">
             Congratulations! You’ve Got {profileSuggesstionsLength} New Matches
