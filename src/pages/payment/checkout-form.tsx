@@ -31,7 +31,7 @@ const CheckoutForm = () => {
       //`Elements` instance that was used to create the Payment Element
       elements,
       confirmParams: {
-        return_url: '/',
+        return_url: 'https://ssq21pcz-5173.inc1.devtunnels.ms/',
       },
     });
 
