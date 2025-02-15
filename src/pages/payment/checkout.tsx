@@ -9,8 +9,7 @@ import useAxiosPrivate from '@/auth/_hooks/use-axios-private.ts';
 import stripe from '../../assets/images/stripe.jpg';
 import CheckoutForm from './checkout-form.tsx';
 
-const STRIPE_PUBLISHABLE_KEY =
-  'pk_test_51QsgN6GT4QmJz1yZwJhWQ4AN6Qsh9O4UsFXStRAThfAIsioeDoffU8WZOzdXzzDKapWCt5brXAbMKW8z4Ubt0c3T00dxTGalFO';
+const STRIPE_PUBLISHABLE_KEY = process.env.VITE_STRIPE_PUBLISHABLE_KEY!;
 
 const Checkout = () => {
   const [clientSecret, setClientSecret] = useState('');
@@ -24,9 +23,11 @@ const Checkout = () => {
   }, []);
 
   useEffect(() => {
+    const abortController = new AbortController();
     axiosPrivate
       .post('/stripe/create-payment-intent', {
         priceId: 'monthly',
+        abortController: abortController,
       })
       .then((response) => {
         console.log(response.data);
@@ -36,6 +37,9 @@ const Checkout = () => {
       .catch((error) => {
         console.log(error);
       });
+    return () => {
+      abortController.abort();
+    };
   }, [axiosPrivate]);
 
   const [timeLeft, setTimeLeft] = useState({
