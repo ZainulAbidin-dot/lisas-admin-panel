@@ -1,46 +1,49 @@
 import { useEffect, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
-
-import { useAuthStore } from '@/store/auth-store';
-
-import stripe from '../../assets/images/stripe.jpg';
-
-import {Elements} from '@stripe/react-stripe-js';
-
-import {loadStripe} from '@stripe/stripe-js';
-
-import CheckoutForm from './checkout-form.tsx';
-
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import type { Stripe } from '@stripe/stripe-js';
 
+import useAxiosPrivate from '@/auth/_hooks/use-axios-private.ts';
+
+import stripe from '../../assets/images/stripe.jpg';
+import CheckoutForm from './checkout-form.tsx';
+
+const STRIPE_PUBLISHABLE_KEY =
+  'pk_test_51QsgN6GT4QmJz1yZwJhWQ4AN6Qsh9O4UsFXStRAThfAIsioeDoffU8WZOzdXzzDKapWCt5brXAbMKW8z4Ubt0c3T00dxTGalFO';
+
 const Checkout = () => {
-  const [clientSecret, setClientSecret] = useState("");
-  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [clientSecret, setClientSecret] = useState('');
+  const [stripePromise, setStripePromise] =
+    useState<Promise<Stripe | null> | null>(null);
+
+  const axiosPrivate = useAxiosPrivate();
 
   useEffect(() => {
-    setStripePromise(loadStripe('pk_test_51QsV1bRxLIzv3bGgd9hOg16S3jK0JjPLcBrmocpcJNNAO49hlvS50RfzQYvtiRCxPkdqU16pr6iyxsbqj2RtxQ9f00797badiP'));
+    setStripePromise(loadStripe(STRIPE_PUBLISHABLE_KEY));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:5252/create-payment-intent", {
-      method: "POST",
-      body: JSON.stringify({}),
-    }).then(async (result) => {
-      var { clientSecret } = await result.json();
-      setClientSecret(clientSecret);
-    });
-  }, []);
+    axiosPrivate
+      .post('/stripe/create-payment-intent', {
+        priceId: 'monthly',
+      })
+      .then((response) => {
+        console.log(response.data);
+        const { clientSecret } = response.data.data;
+        setClientSecret(clientSecret);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [axiosPrivate]);
 
-  
   const [timeLeft, setTimeLeft] = useState({
     days: 3,
     hours: 22,
     minutes: 29,
     seconds: 57,
   });
-  const { setUserHasSubscription } = useAuthStore();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -64,12 +67,6 @@ const Checkout = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleClick = () => {
-
-    // setUserHasSubscription(true);
-    // navigate('/');
-  };
 
   return (
     <div className="min-h-[fit-content] flex flex-col md:flex-row justify-center px-6 py-8 bg-gray-100">
@@ -109,20 +106,12 @@ const Checkout = () => {
         <div className="flex flex-col md:flex-row justify-start items-center gap-3">
           <div className="mb-4 w-full md:flex-grow-2">
             {clientSecret && stripePromise && (
-              <Elements stripe={stripePromise} options={{clientSecret}}>
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
                 <CheckoutForm />
               </Elements>
             )}
           </div>
-
-
         </div>
-        <button
-          className=" bg-orange-500 text-white p-3 rounded-none font-bold text-lg hover:bg-orange-600"
-          onClick={handleClick}
-        >
-          Claim My Membership for $99 Now!
-        </button>
 
         <div className="my-8 flex justify-start space-x-4">
           <img src={stripe} alt="Visa" className="" />

@@ -1,4 +1,8 @@
-import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
+import {
+  PaymentElement,
+  useElements,
+  useStripe,
+} from '@stripe/react-stripe-js';
 
 const CheckoutForm = () => {
   const stripe = useStripe();
@@ -10,7 +14,9 @@ const CheckoutForm = () => {
     };
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     // We don't want to let default form submission happen here,
     // which would refresh the page.
     event.preventDefault();
@@ -25,7 +31,7 @@ const CheckoutForm = () => {
       //`Elements` instance that was used to create the Payment Element
       elements,
       confirmParams: {
-        return_url: "/",
+        return_url: '/',
       },
     });
 
@@ -43,13 +49,13 @@ const CheckoutForm = () => {
     <form onSubmit={handleSubmit}>
       <PaymentElement />
       <button
-          className="mt-4 bg-orange-500 text-white p-3 rounded-none font-bold text-lg hover:bg-orange-600"
-          disabled={!stripe}
-        >
-          Submit
-        </button>
+        className=" bg-orange-500 text-white p-3 rounded-none font-bold text-lg hover:bg-orange-600"
+        disabled={!stripe || !elements}
+      >
+        Claim My Membership for $99 Now!
+      </button>
     </form>
-  )
+  );
 };
 
 export default CheckoutForm;
