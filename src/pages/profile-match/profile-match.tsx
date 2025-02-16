@@ -20,7 +20,7 @@ function ProfileMatchPageComponent() {
   return (
     <div className="flex flex-grow justify-between bg-gray-200">
       <ProfileMatchSidebar />
-      <div className="flex flex-col w-full items-center p-4">
+      <div className="flex flex-col w-full items-center p-4 overflow-hidden">
         <div className="h-full w-full p-6 flex flex-col">
           <div className="flex h-full w-full items-center justify-center">
             <SwipeArea />

@@ -66,6 +66,7 @@ export function Subscription() {
                   initialText="Continue"
                   disabled={waitingFor !== null}
                   onClick={() => getCheckoutPage('monthly')}
+                  className="w-full"
                 >
                   Continue
                 </ButtonWithLoader>
@@ -100,6 +101,7 @@ export function Subscription() {
                   initialText="Continue"
                   disabled={waitingFor !== null}
                   onClick={() => getCheckoutPage('yearly')}
+                  className="w-full"
                 >
                   Continue
                 </ButtonWithLoader>
