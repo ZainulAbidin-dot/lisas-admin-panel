@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
 import { ButtonWithLoader } from '@/components/composed/button-with-loader';
+import { useAuthStore } from '@/store/auth-store';
 
 import image from '../../assets/images/image01.jpg';
 
@@ -159,6 +160,7 @@ function useCountdown() {
 
 function useSubscription() {
   const axiosPrivate = useAxiosPrivate();
+  const { clearToken } = useAuthStore();
 
   const [waitingFor, setWaitingFor] = useState<'monthly' | 'yearly' | null>(
     null
@@ -176,6 +178,8 @@ function useSubscription() {
       console.log('Checkout Response: ', response.data);
 
       const url = response.data.data.url;
+
+      clearToken();
 
       window.location.href = url;
     } catch (error) {
