@@ -1,42 +1,17 @@
 import { useEffect, useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
+
+import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
+import { ButtonWithLoader } from '@/components/composed/button-with-loader';
 
 import image from '../../assets/images/image01.jpg';
 
-const Subscription = () => {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 3,
-    hours: 22,
-    minutes: 29,
-    seconds: 57,
-  });
+export function Subscription() {
+  const { timeLeft } = useCountdown();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        const newTime = { ...prev };
-        if (newTime.seconds > 0) newTime.seconds--;
-        else {
-          newTime.seconds = 59;
-          if (newTime.minutes > 0) newTime.minutes--;
-          else {
-            newTime.minutes = 59;
-            if (newTime.hours > 0) newTime.hours--;
-            else {
-              newTime.hours = 23;
-              if (newTime.days > 0) newTime.days--;
-            }
-          }
-        }
-        return { ...newTime };
-      });
-    }, 1000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  const { getCheckoutPage, waitingFor } = useSubscription();
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -83,12 +58,16 @@ const Subscription = () => {
                 <li>✔ Passport - Match & chat</li>
               </ul>
               <div className="flex justify-center">
-                <Link
-                  to="/checkout"
-                  className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)] text-center"
+                <ButtonWithLoader
+                  variant="gradient"
+                  isLoading={waitingFor === 'monthly'}
+                  loadingText="Subscribing..."
+                  initialText="Continue"
+                  disabled={waitingFor !== null}
+                  onClick={() => getCheckoutPage('monthly')}
                 >
                   Continue
-                </Link>
+                </ButtonWithLoader>
               </div>
               <ul className="text-gray-600 p-6 text-sm">
                 <li>✔ 1 free Boost per month</li>
@@ -113,12 +92,16 @@ const Subscription = () => {
                 <li>✔ Passport - Match & chat</li>
               </ul>
               <div className="flex justify-center">
-                <Link
-                  to="/checkout"
-                  className="my-1 bg-gradient-to-tr from-[#fa4737] to-orange-500 text-white px-4 py-1 rounded-full w-full shadow-[-0px_-0px_20px_20px_rgba(255,255,255,1)] text-center"
+                <ButtonWithLoader
+                  variant="gradient"
+                  isLoading={waitingFor === 'yearly'}
+                  loadingText="Subscribing..."
+                  initialText="Continue"
+                  disabled={waitingFor !== null}
+                  onClick={() => getCheckoutPage('yearly')}
                 >
                   Continue
-                </Link>
+                </ButtonWithLoader>
               </div>
               <ul className="text-gray-600 p-6 text-sm">
                 <li>✔ 1 free Boost per month</li>
@@ -135,6 +118,77 @@ const Subscription = () => {
       </div>
     </div>
   );
-};
+}
 
-export default Subscription;
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 3,
+    hours: 22,
+    minutes: 29,
+    seconds: 57,
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        const newTime = { ...prev };
+        if (newTime.seconds > 0) newTime.seconds--;
+        else {
+          newTime.seconds = 59;
+          if (newTime.minutes > 0) newTime.minutes--;
+          else {
+            newTime.minutes = 59;
+            if (newTime.hours > 0) newTime.hours--;
+            else {
+              newTime.hours = 23;
+              if (newTime.days > 0) newTime.days--;
+            }
+          }
+        }
+        return { ...newTime };
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  return { timeLeft };
+}
+
+function useSubscription() {
+  const axiosPrivate = useAxiosPrivate();
+
+  const [waitingFor, setWaitingFor] = useState<'monthly' | 'yearly' | null>(
+    null
+  );
+
+  async function getCheckoutPage(priceId: 'monthly' | 'yearly') {
+    if (waitingFor) return;
+    try {
+      setWaitingFor(priceId);
+
+      const response = await axiosPrivate.post('/stripe/checkout', {
+        priceId,
+      });
+
+      console.log('Checkout Response: ', response.data);
+
+      const url = response.data.data.url;
+
+      window.location.href = url;
+    } catch (error) {
+      console.error('Login Error: ', error);
+      const errorMessage =
+        error instanceof AxiosError
+          ? error?.response?.data?.message || error?.message || 'Unknown Error'
+          : 'Unknown Error';
+      toast.error(errorMessage);
+    } finally {
+      setWaitingFor(null);
+    }
+  }
+
+  return { getCheckoutPage, waitingFor };
+}

@@ -17,9 +17,11 @@ export function SwipeArea() {
   const { handleRightSwipe, handleLeftSwipe, profileSuggestions } =
     useProfileMatch();
   const [swipesCount, setSwipesCount] = useLocalStorage('swipesCount', 0);
-  const { userHasSubscription } = useAuthStore();
+  const { token } = useAuthStore();
 
-  const noMoreSwipes = !userHasSubscription && swipesCount > 2;
+  const userHasSubscription = token?.decoded.hasActiveSubscription;
+
+  const noMoreSwipes = !userHasSubscription && swipesCount > 4;
 
   const handleSwipe = (dir: Direction, user: TProfileSuggestion): void => {
     const nopeElement = document.getElementById(`nope-${user.id}`);

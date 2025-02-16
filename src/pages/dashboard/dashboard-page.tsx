@@ -16,9 +16,9 @@ import { UpdatePassword } from './update-password';
 import { UpdatePersonalInfo } from './update-personal-info';
 import { UpdateProfileInformation } from './update-profile-information';
 
-const DEFAULT_AVATAR = '/assets/avtar.jpg';
+const DEFAULT_AVATAR = '/assets/avatar.jpg';
 
-export function ShowProfilePage() {
+export function DashboardPage() {
   const { isLoading, user } = useGetUserProfile();
 
   if (isLoading) return <div>Loading...</div>;

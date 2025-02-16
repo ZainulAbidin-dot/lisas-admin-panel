@@ -1,4 +1,4 @@
-import { FlameIcon, PanelLeft } from 'lucide-react';
+import { FlameIcon, PanelLeftIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,7 +9,10 @@ import { Button } from '../ui/button';
 import { useSidebar } from '../ui/sidebar';
 
 export function Navbar() {
-  const { userHasSubscription, token } = useAuthStore();
+  const { token } = useAuthStore();
+
+  const userHasSubscription = token?.decoded.hasActiveSubscription;
+
   return (
     <nav
       className={cn(
@@ -40,7 +43,7 @@ function ToggleSidebarButton() {
       onClick={toggleSidebar}
       title={open ? 'Close sidebar' : 'Open sidebar'}
     >
-      <PanelLeft className="!size-8" />
+      <PanelLeftIcon className="!size-8" />
     </Button>
   );
 }

@@ -9,7 +9,7 @@ import useAxiosPrivate from '@/auth/_hooks/use-axios-private.ts';
 import stripe from '../../assets/images/stripe.jpg';
 import CheckoutForm from './checkout-form.tsx';
 
-const STRIPE_PUBLISHABLE_KEY = process.env.VITE_STRIPE_PUBLISHABLE_KEY!;
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!;
 
 const Checkout = () => {
   const [clientSecret, setClientSecret] = useState('');

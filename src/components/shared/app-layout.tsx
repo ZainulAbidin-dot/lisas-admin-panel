@@ -1,11 +1,11 @@
 import {
+  BriefcaseBusinessIcon,
   HeadsetIcon,
   LayoutDashboardIcon,
   LogOutIcon,
-  MenuIcon,
   MessageSquareTextIcon,
+  PanelLeftIcon,
   UserSearchIcon,
-  XIcon,
 } from 'lucide-react';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -29,7 +29,10 @@ import { Footer } from './footer';
 import { Navbar } from './navbar';
 
 export function AppLayout() {
-  const { userHasSubscription } = useAuthStore();
+  const { token } = useAuthStore();
+
+  const userHasSubscription = token?.decoded.hasActiveSubscription;
+
   return (
     <SidebarProvider defaultOpen={false}>
       {userHasSubscription ? <AppSidebar /> : null}
@@ -50,18 +53,23 @@ export function AppLayout() {
 const items = [
   {
     title: 'Dashboard',
-    url: '/profile/show',
+    url: '/dashboard',
     icon: LayoutDashboardIcon,
   },
   {
     title: 'Profile Match',
-    url: '/profile/find-match',
+    url: '/',
     icon: UserSearchIcon,
   },
   {
     title: 'Chat',
     url: '/chat',
     icon: MessageSquareTextIcon,
+  },
+  {
+    title: 'Subscription',
+    url: '/manage-subscription',
+    icon: BriefcaseBusinessIcon,
   },
   {
     title: 'Help & Support',
@@ -84,11 +92,7 @@ export function AppSidebar() {
               onClick={toggleSidebar}
               title={open ? 'Close sidebar' : 'Open sidebar'}
             >
-              {open ? (
-                <XIcon className="!size-8" />
-              ) : (
-                <MenuIcon className="!size-8" />
-              )}
+              <PanelLeftIcon className="!size-8" />
             </Button>
           </div>
         ) : null}

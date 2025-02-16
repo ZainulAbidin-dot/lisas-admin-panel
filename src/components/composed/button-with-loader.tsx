@@ -6,7 +6,7 @@ import { Button, ButtonProps } from '@/components/ui/button';
 
 type TButtonWithLoaderProps = ButtonProps & {
   initialIcon?: React.ReactElement;
-  initialText?: string;
+  initialText: string;
   isLoading: boolean;
   loadingText: string;
 };
