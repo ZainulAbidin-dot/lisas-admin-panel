@@ -5,10 +5,14 @@ import RequireAuth from '@/auth/_components/require-auth';
 import { AuthRouter } from '@/auth/auth-router';
 import { AppLayout } from '@/components/shared/app-layout';
 import { Toaster } from '@/components/ui/sonner';
-import { ChatPage } from '@/pages/chat/chat-page';
+import { ChatLayout } from '@/pages/chat/chat-page';
 import { ProfileMatchPage } from '@/pages/profile-match/profile-match';
 import { Subscription } from '@/pages/subscription/subscription';
 
+import {
+  ChatSection,
+  EmptyChatArea,
+} from './pages/chat/_components/chat-main-area';
 import { DashboardPage } from './pages/dashboard/dashboard-page';
 import { ManageSubscription } from './pages/subscription/manage-subscription';
 
@@ -34,7 +38,10 @@ export function App() {
             </Route>
 
             <Route element={<RequireAuth requireSubscription={true} />}>
-              <Route path="/chat/*" element={<ChatPage />} />
+              <Route path="/chat" element={<ChatLayout />}>
+                <Route index element={<EmptyChatArea />} />
+                <Route path=":matchId" element={<ChatSection />} />
+              </Route>
             </Route>
 
             <Route element={<RequireAuth requireSubscription={true} />}>

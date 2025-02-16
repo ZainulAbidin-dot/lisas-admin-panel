@@ -1,20 +1,21 @@
-//! This context is currently set to test the chat feature
-import { createContext, useContext, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
-type ChatUser = {
-  id: string;
-  name: string;
-  profileImage: string;
-  isOnline: boolean;
-  unreadMessages: number;
-};
+import { useParams } from 'react-router-dom';
 
-export type Contact = {
-  user: ChatUser;
-  lastMessage: {
-    text: string;
-    createdAt: Date;
-  } | null;
+import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
+import { useAuthStore } from '@/store/auth-store';
+
+export type ChatUser = {
+  matchId: string;
+  userId: string;
+  userName: string;
+  profileImage?: string;
 };
 
 type ChatMessage = {
@@ -29,125 +30,237 @@ export type Conversation = {
 };
 
 type ChatContextType = {
-  contacts: Contact[];
+  contactsState: {
+    queryState: 'idle' | 'fetching' | 'refetching';
+    data: ChatUser[];
+  };
 
-  conversations: Record<string, Conversation>;
-  getCoversationByUserId: (id: string) => Conversation;
+  conversationState: {
+    queryState: 'idle' | 'fetching' | 'refetching' | 'sending-message';
+    firstFetch: boolean;
+    data: Conversation;
+  };
 
-  addMessage: (userId: string, message: ChatMessage) => void;
+  fetchConversationByMatchId: (
+    matchId: string,
+    abortSignal?: AbortSignal
+  ) => Promise<void>;
+
+  sendMessage: (message: string) => Promise<void>;
 };
 
 const ChatContext = createContext<ChatContextType>({
-  contacts: [],
-  conversations: {},
-  getCoversationByUserId: () => ({}) as Conversation,
-  addMessage: () => {},
+  contactsState: {
+    queryState: 'idle',
+    data: [],
+  },
+
+  conversationState: {
+    queryState: 'idle',
+    firstFetch: true,
+    data: {
+      chatUser: {
+        matchId: '',
+        userId: '',
+        userName: '',
+      },
+      messages: [],
+    },
+  },
+
+  fetchConversationByMatchId: async () => {},
+
+  sendMessage: async () => {},
 });
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [contacts, setContacts] = useState<Contact[]>(() => {
-    try {
-      const stringData = localStorage.getItem('contacts');
-      if (!stringData) {
-        throw new Error('No contacts found in local storage');
+  const [contactsState, setContactsState] = useState<{
+    queryState: 'idle' | 'fetching' | 'refetching';
+    data: ChatUser[];
+  }>({
+    queryState: 'idle',
+    data: [],
+  });
+
+  const [conversationState, setConversationState] = useState<{
+    queryState: 'idle' | 'fetching' | 'refetching' | 'sending-message';
+    firstFetch: boolean;
+    data: Conversation;
+  }>({
+    queryState: 'idle',
+    firstFetch: true,
+    data: {
+      chatUser: {
+        matchId: '',
+        userId: '',
+        userName: '',
+      },
+      messages: [],
+    },
+  });
+
+  const axiosPrivate = useAxiosPrivate();
+
+  const { token } = useAuthStore();
+
+  const { matchId } = useParams();
+
+  const currentUserId = token?.decoded?.userId;
+
+  const fetchContacts = useCallback(
+    async (abortSignal?: AbortSignal) => {
+      try {
+        setContactsState((prev) => ({
+          ...prev,
+          queryState: 'fetching',
+        }));
+        const response = await axiosPrivate.get('chat/conversations', {
+          signal: abortSignal,
+        });
+
+        setContactsState({
+          queryState: 'idle',
+          data: response.data.data.conversations,
+        });
+      } catch (error) {
+        console.log('Error fetching contacts', error);
       }
+    },
+    [axiosPrivate]
+  );
 
-      const data = JSON.parse(stringData);
+  const fetchConversationByMatchId = useCallback(
+    async (matchId: string, abortSignal?: AbortSignal) => {
+      try {
+        setConversationState((prev) => ({
+          ...prev,
+          queryState: prev.firstFetch ? 'fetching' : 'refetching',
+        }));
+        const response = await axiosPrivate.get(
+          `/chat/conversations/${matchId}`,
+          {
+            signal: abortSignal,
+          }
+        );
 
-      return data as Contact[];
-    } catch (error) {
-      console.log('Error parsing contacts', error);
-      const contacts = Array.from({ length: 20 }).map((_, i) => {
-        const unreadMessages = Math.floor(Math.random() * 5);
-        const isOnline = Math.random() > 0.5;
-        return {
-          user: {
-            id: `user-${i}`,
-            name: `User ${i + 1}`,
-            profileImage: 'https://picsum.photos/id/100/200/300',
-            isOnline: isOnline,
-            unreadMessages: unreadMessages,
+        console.log(response.data);
+
+        setConversationState({
+          queryState: 'idle',
+          firstFetch: false,
+          data: {
+            chatUser: response.data.data.chatUser,
+            messages: response.data.data.chatMessages.map(
+              (m: { text: string; createdAt: string; senderId: string }) => ({
+                text: m.text,
+                createdAt: new Date(m.createdAt),
+                isOwnMessage: m.senderId === currentUserId,
+              })
+            ),
           },
-          lastMessage: null,
-        };
-      });
-
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-
-      return contacts;
-    }
-  });
-
-  const [conversations, setConversations] = useState<
-    Record<string, Conversation>
-  >(() => {
-    try {
-      const stringData = localStorage.getItem('conversations');
-
-      if (!stringData) {
-        throw new Error('No conversations found in local storage');
+        });
+      } catch (error) {
+        console.log('Error fetching conversation', error);
+        setConversationState((prev) => ({
+          ...prev,
+          firstFetch: false,
+          queryState: 'idle',
+        }));
       }
+    },
+    [axiosPrivate, currentUserId]
+  );
 
-      const data = JSON.parse(stringData, (key, value) => {
-        if (key === 'createdAt') {
-          return new Date(value);
-        }
-        return value;
-      });
+  const sendMessage = useCallback(
+    async (message: string) => {
+      try {
+        setConversationState((prev) => ({
+          ...prev,
+          queryState: 'sending-message',
+        }));
 
-      return data;
-    } catch (error) {
-      console.log('Error parsing conversations', error);
+        await axiosPrivate.post(`/chat/conversations/messages`, {
+          message,
+          matchId: conversationState.data.chatUser.matchId,
+          receiverId: conversationState.data.chatUser.userId,
+        });
 
-      const newConversations: Record<string, Conversation> = {};
-
-      contacts.forEach((contact) => {
-        newConversations[contact.user.id] = {
-          chatUser: contact.user,
-          messages: [],
+        const newChatMessage: ChatMessage = {
+          text: message,
+          createdAt: new Date(),
+          isOwnMessage: true,
         };
-      });
 
-      localStorage.setItem('conversations', JSON.stringify(newConversations));
+        setConversationState((prev) => ({
+          ...prev,
+          queryState: 'idle',
+          data: {
+            ...prev.data,
+            messages: [...prev.data.messages, newChatMessage],
+          },
+        }));
+      } catch (error) {
+        console.log('Error sending message', error);
+        setConversationState((prev) => ({
+          ...prev,
+          queryState: 'idle',
+        }));
+      }
+    },
+    [axiosPrivate, conversationState]
+  );
 
-      return newConversations;
-    }
-  });
+  useEffect(() => {
+    const abortController = new AbortController();
 
-  const getCoversationByUserId = (id: string) => {
-    const conversation = conversations[id];
+    fetchContacts(abortController.signal);
 
-    return conversation;
-  };
+    return () => {
+      abortController.abort();
+    };
+  }, [fetchContacts]);
 
-  const addMessage = (userId: string, message: ChatMessage) => {
-    const conversation = getCoversationByUserId(userId);
+  const POLL_INTERVAL = 5000; // Adjust polling interval as needed (e.g., 5 seconds)
 
-    conversation.messages.push(message);
+  useEffect(() => {
+    if (!matchId) return;
 
-    setConversations({
-      ...conversations,
-      [userId]: conversation,
-    });
+    let abortController = new AbortController();
 
-    setContacts(
-      contacts.map((c) => {
-        if (c.user.id === userId) c.lastMessage = message;
-        return c;
-      })
-    );
+    const fetchConversation = () => {
+      abortController.abort(); // Cancel any ongoing request before starting a new one
+      abortController = new AbortController(); // Create a new AbortController instance
+      fetchConversationByMatchId(matchId, abortController.signal);
+    };
 
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-    localStorage.setItem('conversations', JSON.stringify(conversations));
-  };
+    fetchConversation(); // Initial fetch
+    const interval = setInterval(fetchConversation, POLL_INTERVAL);
+
+    return () => {
+      clearInterval(interval); // Cleanup interval on unmount
+      abortController.abort(); // Abort ongoing request
+    };
+  }, [matchId, fetchConversationByMatchId]);
+
+  // useEffect(() => {
+  //   const abortController = new AbortController();
+
+  //   if (matchId) {
+  //     fetchConversationByMatchId(matchId, abortController.signal);
+  //   }
+
+  //   return () => {
+  //     abortController.abort();
+  //   };
+  // }, [matchId, fetchConversationByMatchId]);
 
   return (
     <ChatContext.Provider
       value={{
-        contacts,
-        conversations,
-        getCoversationByUserId,
-        addMessage,
+        contactsState,
+        conversationState,
+        fetchConversationByMatchId,
+        sendMessage,
       }}
     >
       {children}

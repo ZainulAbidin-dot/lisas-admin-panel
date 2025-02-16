@@ -11,6 +11,8 @@ const useAxiosPrivate = () => {
   useEffect(() => {
     const requestIntercept = axiosPrivateInstance.interceptors.request.use(
       (config) => {
+        console.log('CONFIG', config.url);
+        console.log('TOKEN', token);
         if (!config.headers['Authorization']) {
           config.headers['Authorization'] = `Bearer ${token?.encoded}`;
         }

@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -6,31 +6,21 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 import { ChatListItem } from './_components/chat-list-item';
-import { ChatSection, EmptyChatArea } from './_components/chat-main-area';
 import { ChatProvider, useChatContext } from './chat-context';
 
-export function ChatPage() {
-  return (
-    <ChatProvider>
-      <Routes>
-        <Route element={<ChatLayout />}>
-          <Route index element={<EmptyChatArea />} />
-          <Route path=":id" element={<ChatSection />} />
-        </Route>
-      </Routes>
-    </ChatProvider>
-  );
-}
-
 function ChatSidebar() {
-  const { contacts } = useChatContext();
+  const {
+    contactsState: { data: contacts },
+  } = useChatContext();
   const isMobile = useIsMobile();
-  const { id } = useParams();
+
+  const { matchId } = useParams();
+
   return (
     <ScrollArea
       className={cn(
-        'w-1/4 min-w-80 h-full',
-        isMobile ? (id ? 'hidden' : 'w-full') : ''
+        'w-1/4 min-w-80 h-full border-r',
+        isMobile ? (matchId ? 'hidden' : 'w-full') : ''
       )}
     >
       {/* Search bar */}
@@ -43,7 +33,7 @@ function ChatSidebar() {
 
         <div className="flex flex-col gap-2">
           {contacts.map((contact) => (
-            <ChatListItem key={contact.user.id} contact={contact} />
+            <ChatListItem key={contact.matchId} contact={contact} />
           ))}
         </div>
       </div>
@@ -51,21 +41,23 @@ function ChatSidebar() {
   );
 }
 
-function ChatLayout() {
+export function ChatLayout() {
   return (
-    <div className="flex-grow">
-      <div
-        className={cn(
-          'flex gap-4',
-          'h-[calc(100vh-4rem-3.5rem)]',
-          'h-[calc(100svh-4rem-3.5rem)]',
-          'overflow-y-auto'
-        )}
-      >
-        <ChatSidebar />
+    <ChatProvider>
+      <div className="flex-grow">
+        <div
+          className={cn(
+            'flex gap-4',
+            'h-[calc(100vh-4rem-3.5rem)]',
+            'h-[calc(100svh-4rem-3.5rem)]',
+            'overflow-y-auto'
+          )}
+        >
+          <ChatSidebar />
 
-        <Outlet />
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </ChatProvider>
   );
 }

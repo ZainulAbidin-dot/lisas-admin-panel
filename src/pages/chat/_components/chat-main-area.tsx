@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 import {
-  ArrowBigLeftIcon,
   ArrowLeftIcon,
   MessageCircle,
   PhoneIcon,
   SendIcon,
 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ import { Conversation, useChatContext } from '../chat-context';
 
 type ChatHeaderProps = {
   name: string;
-  profileImage: string;
+  profileImage?: string;
   isOnline: boolean;
 };
 
@@ -71,7 +70,7 @@ export function Message({
   user: Conversation['chatUser'];
 }) {
   const isOwnMessage = message.isOwnMessage;
-  const sender = user.name;
+  const sender = user.userName;
   const time = message.createdAt;
   const content = message.text;
   const profileImage = user.profileImage;
@@ -83,7 +82,12 @@ export function Message({
       {!isOwnMessage && (
         <Avatar className="w-8 h-8 mr-2">
           <AvatarImage src={profileImage} />
-          <AvatarFallback>{sender?.charAt(0)}</AvatarFallback>
+          <AvatarFallback>
+            {sender
+              .split(' ')
+              .map((n) => n[0]?.toUpperCase())
+              .join('')}
+          </AvatarFallback>
         </Avatar>
       )}
       <div
@@ -124,19 +128,13 @@ export function ChatMainArea({ conversation }: { conversation: Conversation }) {
 export function ChatInputArea({
   addMessage,
 }: {
-  addMessage: (message: string, isOwnMessage: boolean) => void;
+  addMessage: (message: string) => void;
 }) {
   const [input, setInput] = useState('');
 
-  const handleSendAsOwnMessage = () => {
+  const handleSendMsg = () => {
     if (!input.trim()) return;
-    addMessage(input, true);
-    setInput('');
-  };
-
-  const handleSendAsRecipient = () => {
-    if (!input.trim()) return;
-    addMessage(input, false);
+    addMessage(input);
     setInput('');
   };
 
@@ -147,14 +145,10 @@ export function ChatInputArea({
         className="flex-1 bg-transparent"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && handleSendAsOwnMessage()}
+        onKeyDown={(e) => e.key === 'Enter' && handleSendMsg()}
       />
-      <Button size="icon" onClick={handleSendAsOwnMessage}>
+      <Button size="icon" onClick={handleSendMsg}>
         <SendIcon />
-        <span className="sr-only">Send Message</span>
-      </Button>
-      <Button size="icon" variant="destructive" onClick={handleSendAsRecipient}>
-        <ArrowBigLeftIcon />
         <span className="sr-only">Send Message</span>
       </Button>
     </div>
@@ -162,18 +156,14 @@ export function ChatInputArea({
 }
 
 export function ChatSection() {
-  const { id } = useParams();
-  const { getCoversationByUserId, addMessage } = useChatContext();
+  const { conversationState, sendMessage } = useChatContext();
 
-  const conversation = getCoversationByUserId(id!);
+  const conversation = conversationState.data;
+  const conversationLoading = conversationState.queryState === 'fetching';
 
-  function handleSend(message: string, isOwnMessage: boolean) {
-    addMessage(id!, {
-      text: message,
-      createdAt: new Date(),
-      isOwnMessage: isOwnMessage,
-    });
-  }
+  if (conversationLoading) return <div>Loading...</div>;
+
+  const chatUser = conversation.chatUser;
 
   return (
     <section
@@ -183,12 +173,12 @@ export function ChatSection() {
     >
       <div className="flex flex-col h-full overflow-y-auto">
         <ChatHeader
-          name={conversation.chatUser.name}
-          profileImage={conversation.chatUser.profileImage}
-          isOnline={conversation.chatUser.isOnline}
+          name={chatUser.userName}
+          profileImage={chatUser.profileImage}
+          isOnline={true} // TODO: Add isOnline state
         />
         <ChatMainArea conversation={conversation} />
-        <ChatInputArea addMessage={handleSend} />
+        <ChatInputArea addMessage={sendMessage} />
       </div>
     </section>
   );
