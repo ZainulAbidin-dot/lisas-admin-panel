@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
+import { AppLayout } from '@/components/shared/app-layout';
 import { useAuthStore } from '@/store/auth-store';
 
 const RequireAuth = ({
@@ -27,7 +28,7 @@ const RequireAuth = ({
     return <Navigate to="/pricings" />;
   }
 
-  return <Outlet />;
+  return <AppLayout />;
 };
 
 export default RequireAuth;
