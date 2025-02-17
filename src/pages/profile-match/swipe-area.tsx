@@ -72,6 +72,7 @@ export function SwipeArea() {
             <div
               className="absolute top-4 left-4 hidden"
               id={`nope-${user.id}`}
+              onClick={() => handleSwipe('left', user)}
             >
               <img src={nope} alt="Nope" className="w-16 h-16" />
             </div>
@@ -91,10 +92,10 @@ export function SwipeArea() {
                 <p className="text-gray-300 font-light">{user.city}</p>
               </div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
-                <button className="py-2 rounded-full shadow-md">
+                <button className="py-2 rounded-full shadow-md" onClick={() => handleSwipe('left', user)} >
                   <img src={redX} alt="Dislike" className="w-12 h-11" />
                 </button>
-                <button className="p-2 rounded-full shadow-md">
+                <button className="p-2 rounded-full shadow-md" onClick={() => handleSwipe('right', user)} >
                   <img src={heart} alt="Like" className="w-12 h-12" />
                 </button>
               </div>

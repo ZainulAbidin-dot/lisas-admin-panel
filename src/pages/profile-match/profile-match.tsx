@@ -25,7 +25,7 @@ function ProfileMatchPageComponent() {
           <div className="flex h-full w-full items-center justify-center">
             <SwipeArea />
           </div>
-          <p className="text-center text-primary font-semibold text-4xl mt-auto">
+          <p className="text-center text-primary font-semibold text-2xl md:text-3xl lg:text-4xl mt-auto px-4">
             Congratulations! You’ve Got {profileSuggesstionsLength} New Matches
             with Shared Interests!
           </p>
