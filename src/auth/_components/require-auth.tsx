@@ -20,7 +20,11 @@ const RequireAuth = ({
 
   // User has token and page doesnot require subscription
   if (!requireSubscription) {
-    return <Outlet />;
+    return (
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    );
   }
 
   // user has token, page require subscription and user doesnot have one
@@ -28,7 +32,11 @@ const RequireAuth = ({
     return <Navigate to="/pricings" />;
   }
 
-  return <AppLayout />;
+  return (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  );
 };
 
 export default RequireAuth;

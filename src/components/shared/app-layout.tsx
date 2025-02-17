@@ -1,3 +1,5 @@
+import React from 'react';
+
 import {
   BriefcaseBusinessIcon,
   HeadsetIcon,
@@ -7,7 +9,7 @@ import {
   PanelLeftIcon,
   UserSearchIcon,
 } from 'lucide-react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useLogout } from '@/auth/_hooks/use-logout';
 import {
@@ -28,7 +30,7 @@ import { Button } from '../ui/button';
 import { Footer } from './footer';
 import { Navbar } from './navbar';
 
-export function AppLayout() {
+export function AppLayout({ children }: { children: React.ReactNode }) {
   const { token } = useAuthStore();
 
   const userHasSubscription = token?.decoded.hasActiveSubscription;
@@ -39,9 +41,7 @@ export function AppLayout() {
       <div className="w-full">
         <div className="flex flex-col min-h-screen min-h-svh">
           <Navbar />
-          <main className="flex-grow flex flex-col">
-            <Outlet />
-          </main>
+          <main className="flex-grow flex flex-col">{children}</main>
           <Footer />
         </div>
       </div>
