@@ -22,9 +22,9 @@ export function App() {
       <Routes>
         <Route path="/auth/*" element={<AuthRouter />} />
 
-        <Route element={<AppLayout />}>
+        <Route element={<PersistLogin />}>
           {/* Persist Login */}
-          <Route element={<PersistLogin />}>
+          <Route element={<AppLayout />}>
             <Route element={<RequireAuth requireSubscription={false} />}>
               <Route path="/" element={<ProfileMatchPage />} />
             </Route>

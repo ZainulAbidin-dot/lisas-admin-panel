@@ -1,6 +1,7 @@
-import { FlameIcon, PanelLeftIcon } from 'lucide-react';
+import { FlameIcon, LogOutIcon, PanelLeftIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useLogout } from '@/auth/_hooks/use-logout';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
@@ -26,7 +27,7 @@ export function Navbar() {
             {userHasSubscription ? <ToggleSidebarButton /> : null}
             <Logo />
           </div>
-          {token ? <UserProfile /> : null}
+          {token ? <LogoutButton /> : null}
         </div>
       </div>
     </nav>
@@ -62,16 +63,13 @@ export function Logo() {
   );
 }
 
-function UserProfile() {
+function LogoutButton() {
+  const logout = useLogout();
+
   return (
-    <div className="flex items-center">
-      <div className="flex-shrink-0">
-        <img
-          className="h-10 w-10 rounded-full"
-          src="https://www.gravatar.com/avatar/"
-          alt=""
-        />
-      </div>
-    </div>
+    <Button variant="ghost" onClick={logout} title="Logout">
+      <LogOutIcon />
+      <span>Logout</span>
+    </Button>
   );
 }
