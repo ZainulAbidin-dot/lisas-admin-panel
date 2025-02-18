@@ -4,8 +4,8 @@ import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 
 import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
+import { useLogout } from '@/auth/_hooks/use-logout';
 import { ButtonWithLoader } from '@/components/composed/button-with-loader';
-import { useAuthStore } from '@/store/auth-store';
 
 import image from '../../assets/images/image01.jpg';
 
@@ -162,7 +162,7 @@ function useCountdown() {
 
 function useSubscription() {
   const axiosPrivate = useAxiosPrivate();
-  const { clearToken } = useAuthStore();
+  const logout = useLogout();
 
   const [waitingFor, setWaitingFor] = useState<'monthly' | 'yearly' | null>(
     null
@@ -181,9 +181,9 @@ function useSubscription() {
 
       const url = response.data.data.url;
 
-      clearToken();
+      window.open(url, '_blank');
 
-      window.location.href = url;
+      logout();
     } catch (error) {
       console.error('Login Error: ', error);
       const errorMessage =

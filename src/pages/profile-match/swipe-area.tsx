@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import TinderCard from 'react-tinder-card';
 
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -10,7 +12,6 @@ import nope from '../../assets/images/nope.png';
 import redX from '../../assets/images/red-x.png';
 import PopUp from './pop-up';
 import { TProfileSuggestion, useProfileMatch } from './profile-match-context';
-import { useRef } from 'react';
 
 type Direction = 'left' | 'right' | 'up' | 'down';
 
@@ -22,11 +23,15 @@ export function SwipeArea() {
 
   const userHasSubscription = token?.decoded.hasActiveSubscription;
 
-  const noMoreSwipes = !userHasSubscription && swipesCount > 4;
+  const noMoreSwipes = !userHasSubscription && swipesCount > 1;
 
-  const cardRefs = useRef<(any | null)[]>([]); // Store multiple refs
+  const cardRefs = useRef<unknown[]>([]);
 
-  const handleSwipe = (dir: Direction, index: number, user: TProfileSuggestion): void => {
+  const handleSwipe = (
+    dir: Direction,
+    index: number,
+    user: TProfileSuggestion
+  ): void => {
     const nopeElement = document.getElementById(`nope-${user.id}`);
     const likeElement = document.getElementById(`like-${user.id}`);
 
@@ -51,10 +56,16 @@ export function SwipeArea() {
     }
 
     if (cardRefs.current[index]) {
-      cardRefs.current[index]?.swipe(dir);
+      const currentCard = cardRefs.current[index];
+      if (
+        typeof currentCard === 'object' &&
+        'swipe' in currentCard &&
+        typeof currentCard.swipe === 'function'
+      ) {
+        currentCard.swipe(dir);
+      }
     }
   };
-
 
   return (
     <div className="relative w-full max-w-sm h-[28rem] mx-auto">
@@ -101,10 +112,16 @@ export function SwipeArea() {
                 <p className="text-gray-300 font-light">{user.city}</p>
               </div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
-                <button className="py-2 rounded-full shadow-md hover:pointer" onClick={() => handleSwipe('left', index, user)} >
+                <button
+                  className="py-2 rounded-full shadow-md hover:pointer"
+                  onClick={() => handleSwipe('left', index, user)}
+                >
                   <img src={redX} alt="Dislike" className="w-12 h-11" />
                 </button>
-                <button className="p-2 rounded-full shadow-md hover:pointer" onClick={() => handleSwipe('right', index, user)} >
+                <button
+                  className="p-2 rounded-full shadow-md hover:pointer"
+                  onClick={() => handleSwipe('right', index, user)}
+                >
                   <img src={heart} alt="Like" className="w-12 h-12" />
                 </button>
               </div>

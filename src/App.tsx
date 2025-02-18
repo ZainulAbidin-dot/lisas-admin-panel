@@ -26,11 +26,11 @@ export function App() {
               <Route path="/" element={<ProfileMatchPage />} />
             </Route>
 
-            <Route element={<RequireAuth requireSubscription={true} />}>
+            <Route element={<RequireAuth requireSubscription={false} />}>
               <Route path="/dashboard" element={<DashboardPage />} />
             </Route>
 
-            <Route element={<RequireAuth requireSubscription={true} />}>
+            <Route element={<RequireAuth requireSubscription={false} />}>
               <Route path="/chat" element={<ChatLayout />}>
                 <Route index element={<NoChatSelected />} />
                 <Route path=":matchId" element={<ChatSection />} />
