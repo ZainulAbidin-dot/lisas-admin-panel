@@ -10,6 +10,7 @@ import nope from '../../assets/images/nope.png';
 import redX from '../../assets/images/red-x.png';
 import PopUp from './pop-up';
 import { TProfileSuggestion, useProfileMatch } from './profile-match-context';
+import { useRef } from 'react';
 
 type Direction = 'left' | 'right' | 'up' | 'down';
 
@@ -23,7 +24,9 @@ export function SwipeArea() {
 
   const noMoreSwipes = !userHasSubscription && swipesCount > 4;
 
-  const handleSwipe = (dir: Direction, user: TProfileSuggestion): void => {
+  const cardRefs = useRef<(any | null)[]>([]); // Store multiple refs
+
+  const handleSwipe = (dir: Direction, index: number, user: TProfileSuggestion): void => {
     const nopeElement = document.getElementById(`nope-${user.id}`);
     const likeElement = document.getElementById(`like-${user.id}`);
 
@@ -46,18 +49,24 @@ export function SwipeArea() {
     } else if (dir === 'right') {
       handleRightSwipe(user.id);
     }
+
+    if (cardRefs.current[index]) {
+      cardRefs.current[index]?.swipe(dir);
+    }
   };
+
 
   return (
     <div className="relative w-full max-w-sm h-[28rem] mx-auto">
-      {profileSuggestions.map((user) => (
+      {profileSuggestions.map((user, index) => (
         <TinderCard
           className={cn(
             'absolute shadow-none bg-white',
             noMoreSwipes && 'pointer-events-none'
           )}
+          ref={(el) => (cardRefs.current[index] = el)}
           key={user.id}
-          onSwipe={(dir) => handleSwipe(dir, user)}
+          onSwipe={(dir) => handleSwipe(dir, index, user)}
           swipeRequirementType="position"
           swipeThreshold={100}
           preventSwipe={['up', 'down']}
@@ -72,7 +81,7 @@ export function SwipeArea() {
             <div
               className="absolute top-4 left-4 hidden"
               id={`nope-${user.id}`}
-              onClick={() => handleSwipe('left', user)}
+              onClick={() => handleSwipe('left', index, user)}
             >
               <img src={nope} alt="Nope" className="w-16 h-16" />
             </div>
@@ -92,10 +101,10 @@ export function SwipeArea() {
                 <p className="text-gray-300 font-light">{user.city}</p>
               </div>
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex justify-end w-full">
-                <button className="py-2 rounded-full shadow-md" onClick={() => handleSwipe('left', user)} >
+                <button className="py-2 rounded-full shadow-md hover:pointer" onClick={() => handleSwipe('left', index, user)} >
                   <img src={redX} alt="Dislike" className="w-12 h-11" />
                 </button>
-                <button className="p-2 rounded-full shadow-md" onClick={() => handleSwipe('right', user)} >
+                <button className="p-2 rounded-full shadow-md hover:pointer" onClick={() => handleSwipe('right', index, user)} >
                   <img src={heart} alt="Like" className="w-12 h-12" />
                 </button>
               </div>
