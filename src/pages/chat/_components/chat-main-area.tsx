@@ -1,21 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  ArrowLeftIcon,
-  MessageCircle,
-  PhoneIcon,
-  SendIcon,
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { format, isToday, isYesterday } from 'date-fns';
+import { ArrowLeftIcon, Loader2Icon, PhoneIcon, SendIcon } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import useMeasure from 'react-use-measure';
 
+import { LoadingState } from '@/components/loading-state';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/auth-store';
 
-import { Conversation, useChatContext } from '../chat-context';
+import { MatchContact, type Message, useChatContext } from '../chat-context';
 
 type ChatHeaderProps = {
   name: string;
@@ -66,18 +64,23 @@ export function Message({
   message,
   user,
 }: {
-  message: Conversation['messages'][number];
-  user: Conversation['chatUser'];
+  message: Message;
+  user: MatchContact;
 }) {
-  const isOwnMessage = message.isOwnMessage;
+  const currentUserId = useAuthStore((state) => state.token?.decoded?.userId);
+
+  const isOwnMessage = message.senderId === currentUserId;
   const sender = user.userName;
-  const time = message.createdAt;
+  const time = new Date(message.createdAt);
   const content = message.text;
   const profileImage = user.profileImage;
 
   return (
     <div
-      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} my-2 items-end`}
+      className={cn(
+        'flex  my-2 items-end',
+        isOwnMessage ? 'justify-end' : 'justify-start'
+      )}
     >
       {!isOwnMessage && (
         <Avatar className="w-8 h-8 mr-2">
@@ -91,11 +94,21 @@ export function Message({
         </Avatar>
       )}
       <div
-        className={`relative p-3 max-w-xs rounded-lg ${isOwnMessage ? 'bg-secondary text-secondary-foreground' : 'bg-primary text-primary-foreground'} relative`}
-        style={!isOwnMessage ? { borderBottomLeftRadius: 0 } : {}}
+        className={cn(
+          'relative p-3 max-w-xs rounded-lg',
+          isOwnMessage
+            ? 'bg-secondary text-secondary-foreground'
+            : 'bg-primary text-primary-foreground',
+          !isOwnMessage ? 'border-l-2 border-secondary' : ''
+        )}
       >
         <p className="text-sm">{content}</p>
         <p className="text-xs text-right opacity-70">
+          {time.toLocaleDateString(undefined, {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+          })}{' '}
           {time.toLocaleTimeString(undefined, {
             hour: '2-digit',
             minute: '2-digit',
@@ -106,40 +119,114 @@ export function Message({
   );
 }
 
-export function ChatMainArea({ conversation }: { conversation: Conversation }) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export function ChatMainArea({
+  messages,
+  chatUser,
+  loadMoreMessages,
+}: {
+  messages: Message[];
+  chatUser: MatchContact;
+  loadMoreMessages: (abortSignal?: AbortSignal) => Promise<void>;
+  isLoadingMore: boolean;
+}) {
+  const scrollContainer = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const heightRef = useRef<number>(0);
+  const oldMessagesLoaded = useRef(false);
+  const [ref, { height: newHeight }] = useMeasure();
+
+  const reversedMessages = [...messages].reverse();
+  const groupedMessages: (Message | { type: 'date'; label: string })[] = [];
+  let lastDateLabel: string | null = null;
+
+  for (const message of reversedMessages) {
+    const messageDate = formatDateLabel(new Date(message.createdAt));
+
+    if (messageDate !== lastDateLabel) {
+      groupedMessages.push({ type: 'date', label: messageDate });
+      lastDateLabel = messageDate;
+    }
+
+    groupedMessages.push(message);
+  }
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversation.messages.length]);
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const scrollToLast = useCallback(() => {
+    if (!scrollContainer.current) return;
+    if (newHeight > heightRef.current) {
+      scrollContainer.current.scrollTop = newHeight - heightRef.current;
+      heightRef.current = newHeight;
+    }
+  }, [newHeight]);
+
+  useEffect(() => {
+    if (!scrollContainer.current || !bottomRef.current) {
+      return;
+    }
+    console.log('layout effect triggered');
+
+    if (oldMessagesLoaded.current) {
+      scrollToLast();
+      oldMessagesLoaded.current = false;
+    } else {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [scrollToLast]);
+
+  const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
+    if (!scrollContainer.current) return;
+    if (scrollContainer.current.scrollTop < 500) {
+      console.log('SCROLLED TO TOP');
+      console.log('scrollTop', e.currentTarget.scrollTop);
+      console.log('newHeight', newHeight);
+      console.log('oldHeight', heightRef.current);
+      await loadMoreMessages();
+      oldMessagesLoaded.current = true;
+    }
+  };
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-3 bg-white">
-        {conversation.messages.map((msg, index) => (
-          <Message key={index} message={msg} user={conversation.chatUser} />
-        ))}
-        <div ref={messagesEndRef} />
+    <div
+      className={cn('px-4 overflow-y-auto h-full', 'chat-scrolling-container')}
+      ref={scrollContainer}
+      onScroll={handleScroll}
+    >
+      <div ref={ref}>
+        {groupedMessages.map((item, index) =>
+          'type' in item ? (
+            <div key={index} className="text-center text-gray-500 my-2">
+              {item.label}
+            </div>
+          ) : (
+            <Message key={item.id} message={item} user={chatUser} />
+          )
+        )}
       </div>
-    </ScrollArea>
+      <div ref={bottomRef} />
+    </div>
   );
 }
 
 export function ChatInputArea({
   addMessage,
+  isSending,
 }: {
-  addMessage: (message: string) => void;
+  addMessage: (message: string) => Promise<boolean>;
+  isSending: boolean;
 }) {
   const [input, setInput] = useState('');
 
-  const handleSendMsg = () => {
+  const handleSendMsg = async () => {
     if (!input.trim()) return;
     addMessage(input);
     setInput('');
   };
 
   return (
-    <div className="flex items-center gap-2 pt-2 px-2 md:px-2 border-t bg-white shadow-md">
+    <div className="flex items-center gap-2 py-2 px-2 md:px-2 border-t bg-white shadow-md">
       <Input
         placeholder="Enter Message..."
         className="flex-1 bg-transparent"
@@ -147,8 +234,8 @@ export function ChatInputArea({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSendMsg()}
       />
-      <Button size="icon" onClick={handleSendMsg}>
-        <SendIcon />
+      <Button size="icon" onClick={handleSendMsg} disabled={isSending}>
+        {isSending ? <Loader2Icon className="animate-spin" /> : <SendIcon />}
         <span className="sr-only">Send Message</span>
       </Button>
     </div>
@@ -156,48 +243,57 @@ export function ChatInputArea({
 }
 
 export function ChatSection() {
-  const { conversationState, sendMessage } = useChatContext();
+  const { sendMessage, conversationState, loadMoreMessages, onlineUsers } =
+    useChatContext();
 
-  const conversation = conversationState.data;
-  const conversationLoading = conversationState.queryState === 'fetching';
+  const matchId = useParams().matchId!;
 
-  if (conversationLoading) return <div>Loading...</div>;
+  const { chatUser, messages, queryState } = conversationState;
 
-  const chatUser = conversation.chatUser;
+  const isLoading = queryState === 'fetching' || !chatUser;
+
+  if (isLoading) {
+    return (
+      <section className="flex-grow flex flex-col gap-4 px-2 py-2 h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-y-auto">
+          <LoadingState />
+        </div>
+      </section>
+    );
+  }
+
+  const isSending = conversationState.queryState === 'sending-message';
+  const isLoadingMoreMsgs =
+    conversationState.queryState === 'loading-more-messages';
+
+  const addMessage = (content: string) => {
+    return sendMessage(matchId, content, chatUser.userId);
+  };
 
   return (
-    <section
-      className={cn(
-        'flex-grow flex flex-col gap-4 px-2 py-2 md:py-4 md:px-4 h-full overflow-hidden'
-      )}
-    >
+    <section className="flex-grow flex flex-col gap-4 px-2 py-2 h-full overflow-hidden">
       <div className="flex flex-col h-full overflow-y-auto">
         <ChatHeader
           name={chatUser.userName}
           profileImage={chatUser.profileImage}
-          isOnline={true} // TODO: Add isOnline state
+          isOnline={onlineUsers.has(chatUser.userId)}
         />
-        <ChatMainArea conversation={conversation} />
-        <ChatInputArea addMessage={sendMessage} />
+
+        <ChatMainArea
+          messages={messages}
+          chatUser={chatUser}
+          loadMoreMessages={loadMoreMessages}
+          isLoadingMore={isLoadingMoreMsgs}
+        />
+
+        <ChatInputArea addMessage={addMessage} isSending={isSending} />
       </div>
     </section>
   );
 }
 
-export function EmptyChatArea() {
-  const isMobile = useIsMobile();
-
-  if (isMobile) return null;
-
-  return (
-    <section className="flex-grow flex flex-col gap-4 p-4 h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-y-auto">
-        <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-          <MessageCircle size={48} className="mb-4 text-gray-400" />
-          <p className="text-lg font-medium">No conversation selected</p>
-          <p className="text-sm">Select a chat to start messaging</p>
-        </div>
-      </div>
-    </section>
-  );
+function formatDateLabel(date: Date) {
+  if (isToday(date)) return 'Today';
+  if (isYesterday(date)) return 'Yesterday';
+  return format(date, 'MMM dd, yyyy'); // Example: "Feb 15, 2025"
 }

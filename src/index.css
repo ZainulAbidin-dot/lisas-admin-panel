@@ -104,4 +104,18 @@
       'Helvetica Neue',
       sans-serif;
   }
+
+  .chat-scrolling-container::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  .chat-scrolling-container::-webkit-scrollbar-track {
+    background-color: hsl(var(--secondary));
+  }
+
+  /* Handle */
+  .chat-scrolling-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 100vw;
+  }
 }

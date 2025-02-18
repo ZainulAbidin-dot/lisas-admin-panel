@@ -1,5 +1,6 @@
 import { Outlet, useParams } from 'react-router-dom';
 
+import { LoadingState } from '@/components/loading-state';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -9,9 +10,7 @@ import { ChatListItem } from './_components/chat-list-item';
 import { ChatProvider, useChatContext } from './chat-context';
 
 function ChatSidebar() {
-  const {
-    contactsState: { data: contacts },
-  } = useChatContext();
+  const { matchContactState, onlineUsers } = useChatContext();
   const isMobile = useIsMobile();
 
   const { matchId } = useParams();
@@ -19,7 +18,7 @@ function ChatSidebar() {
   return (
     <ScrollArea
       className={cn(
-        'w-1/4 min-w-80 h-full border-r',
+        'w-1/5 min-w-64 h-full border-r',
         isMobile ? (matchId ? 'hidden' : 'w-full') : ''
       )}
     >
@@ -31,9 +30,15 @@ function ChatSidebar() {
           onKeyDown={(e) => e.key === 'Enter' && console.log('Search')}
         />
 
+        {matchContactState.queryState === 'fetching' ? <LoadingState /> : null}
+
         <div className="flex flex-col gap-2">
-          {contacts.map((contact) => (
-            <ChatListItem key={contact.matchId} contact={contact} />
+          {matchContactState.data.map((contact) => (
+            <ChatListItem
+              key={contact.matchId}
+              contact={contact}
+              isOnline={onlineUsers.has(contact.userId)}
+            />
           ))}
         </div>
       </div>
