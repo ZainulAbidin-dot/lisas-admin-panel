@@ -22,7 +22,7 @@ export function SwipeArea() {
 
   const userHasSubscription = token?.decoded.hasActiveSubscription;
 
-  const noMoreSwipes = !userHasSubscription && swipesCount > 70;
+  const noMoreSwipes = !userHasSubscription && swipesCount > 4;
 
   const cardRefs = useRef<(any | null)[]>([]); // Store multiple refs
 
