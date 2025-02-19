@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Socket, io } from 'socket.io-client';
+import { toast } from 'sonner';
 
 import { useAuthStore } from '@/store/auth-store';
 
@@ -17,6 +18,10 @@ export function SocketProvider() {
 
   const encodedToken = useAuthStore((state) => state.token?.encoded);
 
+  const location = useLocation();
+
+  const isChatPage = location.pathname.startsWith('/chat');
+
   useEffect(() => {
     const socketInstance = io(import.meta.env.VITE_SOCKET_URL!, {
       auth: {
@@ -31,6 +36,27 @@ export function SocketProvider() {
       socketInstance.disconnect(); // Clean up the socket when the component unmounts
     };
   }, [encodedToken]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    if (isChatPage) return; // chat page will handle the new message event
+
+    socket.on('new-message', (data) => {
+      const senderName = data.senderName;
+      const message = data.message.text;
+
+      toast.info(`New message from ${senderName}`, {
+        description: message,
+        icon: '💬',
+        duration: 5000,
+      });
+    });
+
+    return () => {
+      socket.off('new-message');
+    };
+  }, [socket, isChatPage]);
 
   return (
     <SocketContext.Provider value={{ socket }}>

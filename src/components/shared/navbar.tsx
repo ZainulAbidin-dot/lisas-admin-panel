@@ -12,8 +12,6 @@ import { useSidebar } from '../ui/sidebar';
 export function Navbar() {
   const { token } = useAuthStore();
 
-  const userHasSubscription = token?.decoded.hasActiveSubscription;
-
   return (
     <nav
       className={cn(
@@ -24,7 +22,7 @@ export function Navbar() {
       <div className="flex-grow">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {userHasSubscription ? <ToggleSidebarButton /> : null}
+            <ToggleSidebarButton />
             <Logo />
           </div>
           {token ? <LogoutButton /> : null}

@@ -261,15 +261,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           messageId: data.message.id,
         });
       } else {
-        let userName = '';
+        const senderName = data.senderName;
 
         setMatchContactState((prev) => {
-          const index = prev.data.findIndex(
-            (contact) => contact.matchId === data.matchId
-          );
-          if (index !== -1) {
-            userName = prev.data[index].userName;
-          }
           return {
             ...prev,
             data: prev.data.map((contact) => {
@@ -284,8 +278,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           };
         });
 
-        toast.info(`New message from ${userName}`, {
+        toast.info(`New message from ${senderName}`, {
           description: data.message.text,
+          icon: '💬',
           duration: 5000,
         });
       }

@@ -24,20 +24,15 @@ import {
   SidebarProvider,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { useAuthStore } from '@/store/auth-store';
 
 import { Button } from '../ui/button';
 import { Footer } from './footer';
 import { Navbar } from './navbar';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
-  const { token } = useAuthStore();
-
-  const userHasSubscription = token?.decoded.hasActiveSubscription;
-
   return (
     <SidebarProvider defaultOpen={false}>
-      {userHasSubscription ? <AppSidebar /> : null}
+      <AppSidebar />
       <div className="w-full">
         <div className="flex flex-col min-h-screen min-h-svh">
           <Navbar />
