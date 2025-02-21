@@ -29,7 +29,7 @@ const RequireAuth = ({
 
   // user has token, page require subscription and user doesnot have one
   if (!userHasSubscription) {
-    return <Navigate to="/pricings" />;
+    return <Navigate to="/subscription" />;
   }
 
   return (

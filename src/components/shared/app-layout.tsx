@@ -52,25 +52,29 @@ const items = [
     icon: LayoutDashboardIcon,
   },
   {
-    title: 'Profile Match',
-    url: '/',
+    title: 'Users',
+    url: '/users',
     icon: UserSearchIcon,
+  },
+  {
+    title: 'Subscriptions',
+    url: '/subscription',
+    icon: BriefcaseBusinessIcon,
   },
   {
     title: 'Chat',
     url: '/chat',
     icon: MessageSquareTextIcon,
   },
-  {
-    title: 'Subscription',
-    url: '/manage-subscription',
-    icon: BriefcaseBusinessIcon,
-  },
-  {
-    title: 'Help & Support',
-    url: '#',
-    icon: HeadsetIcon,
-  },
+  // {
+  //   title: 'Subscription',
+  //   url: '/manage-subscription',
+  // },
+  // {
+  //   title: 'Help & Support',
+  //   url: '#',
+  //   icon: HeadsetIcon,
+  // },
 ];
 
 export function AppSidebar() {

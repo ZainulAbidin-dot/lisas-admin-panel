@@ -42,7 +42,7 @@ export function LoginForm() {
 
   return (
     <React.Fragment>
-      <h1 className="text-4xl font-bold text-gray-900">Lisa's Friend</h1>
+      <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
       <p className="mt-4 text-gray-600 text-xl font-semibold">Welcome back.</p>
       <Form {...form}>
         <form className="my-4" onSubmit={form.handleSubmit(login)}>
@@ -122,16 +122,6 @@ export function LoginForm() {
           </div>
         </form>
       </Form>
-      <p className="mt-4 text-center text-gray-700">
-        Don't have an account?{' '}
-        <Link
-          to="/auth/register"
-          className="text-primary"
-          data-variant="secondary"
-        >
-          Sign up
-        </Link>
-      </p>
     </React.Fragment>
   );
 }

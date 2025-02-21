@@ -1,0 +1,47 @@
+.user-avatar-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 200px;
+}
+
+.user-avatar-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+
+  border: 6px solid transparent;
+
+  background:
+    linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 1))
+      padding-box,
+    linear-gradient(to right, #f97316, #ef4444) border-box;
+}
+
+.user-avatar-image {
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+}
+
+.user-avatar-verified-icon {
+  --_size: 2.5rem;
+
+  position: absolute;
+  top: 25%;
+  right: -1.25rem;
+  width: var(--_size);
+  height: var(--_size);
+
+  stroke: white;
+}
+
+.profile-completion-percentage {
+  padding: 0.25rem;
+  border-radius: 100vw;
+  background: linear-gradient(to right, #f97316, #ef4444);
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  margin-top: -0.5rem;
+}
