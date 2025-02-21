@@ -3,7 +3,6 @@ import React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
 
 import { ButtonWithLoader } from '@/components/composed/button-with-loader';
 import { Checkbox } from '@/components/ui/checkbox';

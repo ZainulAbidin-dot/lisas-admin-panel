@@ -1,10 +1,9 @@
 import { InputHTMLAttributes, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, SaveIcon } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
@@ -15,7 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 
 import {
   TUpdatePassword,
@@ -33,7 +31,7 @@ export function UpdatePassword() {
     },
   });
 
-  const { isSubmitting, updatePassword } = useUpdatePassword();
+  const { updatePassword } = useUpdatePassword();
 
   return (
     <Card className="p-6 bg-transparent shadow-sm">

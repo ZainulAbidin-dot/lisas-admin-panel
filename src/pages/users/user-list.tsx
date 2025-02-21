@@ -56,11 +56,6 @@ export function UserList() {
     });
   };
 
-  console.log(data)
-  const handleView = (user: any) => {
-    alert(`Viewing user: ${user.name}`);
-    // Here you can navigate to a detailed view page or open a modal
-  };
 
   return (
     <>

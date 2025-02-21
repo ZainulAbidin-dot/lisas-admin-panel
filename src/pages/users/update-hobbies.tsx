@@ -1,8 +1,6 @@
-import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
@@ -12,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 import { TUpdateHobbies, useUpdateHobbies } from './_hooks/use-update-hobbies';
@@ -47,7 +44,7 @@ export function UpdateHobbies({
   const { watch } = form;
   const selectedHobbies = watch('hobbies');
 
-  const { updateHobbies, isSubmitting } = useUpdateHobbies();
+  const { updateHobbies } = useUpdateHobbies();
 
   return (
     <Card className="p-6 bg-transparent">

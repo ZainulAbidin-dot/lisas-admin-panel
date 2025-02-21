@@ -1,8 +1,5 @@
-import { SaveIcon, X } from 'lucide-react';
 
-import { ButtonWithLoader } from '@/components/composed/button-with-loader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 import {
   TProfilePic,
@@ -15,21 +12,9 @@ export function ProfilePictureManager({
   initialImages: TProfilePic[];
 }) {
   const {
-    componentState,
     profilePictures,
-    handleImagesSelect,
-    handleDelete,
-    handleUploadProfileImages,
   } = useProfilePicturesManager(initialImages);
 
-  const buttonText =
-    componentState === 'deleting'
-      ? 'Deleting'
-      : componentState === 'uploading'
-        ? 'Uploading'
-        : componentState === 'processing'
-          ? 'Processing'
-          : 'Save';
 
   return (
     <Card className="p-6 bg-transparent">

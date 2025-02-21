@@ -1,11 +1,8 @@
 import { InputHTMLAttributes } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SaveIcon } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 
-import { PhoneNumberInput } from '@/components/composed/phone-input';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
@@ -16,13 +13,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 import {
   type TUpdatePersonalInfo,
   updatePersonalInfoSchema,
-  useUpdatePersonalInformation,
 } from './_hooks/use-update-personal-information';
 
 export function UpdatePersonalInfo({

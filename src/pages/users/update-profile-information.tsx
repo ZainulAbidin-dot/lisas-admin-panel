@@ -1,10 +1,8 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Form,
@@ -28,7 +26,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   TUpdateUserProfile,
   updateUserProfileSchema,
-  useUpdateProfileInformation,
 } from './_hooks/use-update-profile-information';
 
 export function UpdateProfileInformation({
@@ -44,7 +41,7 @@ export function UpdateProfileInformation({
     },
   });
 
-  const [idVerificationPreview, setIdVerificationPreview] = useState<string>(
+  const [idVerificationPreview] = useState<string>(
     userProfile.idVerification || ''
   );
 

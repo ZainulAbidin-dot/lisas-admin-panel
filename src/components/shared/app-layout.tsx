@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
   BriefcaseBusinessIcon,
-  HeadsetIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MessageSquareTextIcon,
