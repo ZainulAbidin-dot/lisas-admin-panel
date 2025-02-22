@@ -4,7 +4,6 @@ import {
   BriefcaseBusinessIcon,
   LayoutDashboardIcon,
   LogOutIcon,
-  MessageSquareTextIcon,
   PanelLeftIcon,
   UserSearchIcon,
 } from 'lucide-react';
@@ -33,9 +32,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <div className="w-full">
-        <div className="flex flex-col min-h-screen min-h-svh">
+        <div className="flex min-h-screen min-h-svh flex-col">
           <Navbar />
-          <main className="flex-grow flex flex-col">{children}</main>
+          <main className="flex flex-grow flex-col">{children}</main>
           <Footer />
         </div>
       </div>
@@ -60,19 +59,10 @@ const items = [
     url: '/subscription',
     icon: BriefcaseBusinessIcon,
   },
-  {
-    title: 'Chat',
-    url: '/chat',
-    icon: MessageSquareTextIcon,
-  },
   // {
-  //   title: 'Subscription',
-  //   url: '/manage-subscription',
-  // },
-  // {
-  //   title: 'Help & Support',
-  //   url: '#',
-  //   icon: HeadsetIcon,
+  //   title: 'Chat',
+  //   url: '/chat',
+  //   icon: MessageSquareTextIcon,
   // },
 ];
 
@@ -81,7 +71,7 @@ export function AppSidebar() {
   const logout = useLogout();
   return (
     <Sidebar collapsible="offcanvas" variant="sidebar">
-      <SidebarHeader className="bg-primary text-primary-foreground h-20">
+      <SidebarHeader className="h-20 bg-primary text-primary-foreground">
         {isMobile ? (
           <div className="flex items-center justify-end">
             <Button
