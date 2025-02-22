@@ -39,13 +39,13 @@ export function UpdatePersonalInfo({
     useUpdatePersonalInformation();
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">User Details</h2>
-      <p className="text-gray-500 text-sm">Update personal information.</p>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">User Details</h2>
+      <p className="text-sm text-gray-500">Update personal information.</p>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updatePersonalInformation)}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             <TextInputWithLabel<TUpdatePersonalInfo>
               nameInSchema="firstName"
               displayName="First Name"
@@ -88,12 +88,8 @@ export function UpdatePersonalInfo({
 
           <Separator />
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isSubmitting}
-            >
+          <div className="mt-4 flex justify-end">
+            <Button type="submit" className="" disabled={isSubmitting}>
               <SaveIcon className="size-4" />
               Save
             </Button>

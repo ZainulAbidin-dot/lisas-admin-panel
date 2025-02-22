@@ -36,15 +36,15 @@ export function UpdatePassword() {
   const { isSubmitting, updatePassword } = useUpdatePassword();
 
   return (
-    <Card className="p-6 bg-transparent shadow-sm">
-      <h2 className="text-3xl font-bold mb-2">Change password</h2>
-      <p className="text-gray-500 text-sm">
+    <Card className="bg-transparent p-6 shadow-sm">
+      <h2 className="mb-2 text-3xl font-bold">Change password</h2>
+      <p className="text-sm text-gray-500">
         Update your password to keep your account secure.
       </p>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updatePassword)}>
-          <CardContent className="grid grid-cols-1 gap-4 mt-4 px-0">
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0">
             <PasswordInput<TUpdatePassword>
               displayName="Old Password"
               nameInSchema="oldPassword"
@@ -67,12 +67,8 @@ export function UpdatePassword() {
 
           <Separator />
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isSubmitting}
-            >
+          <div className="mt-4 flex justify-end">
+            <Button type="submit" className="" disabled={isSubmitting}>
               <SaveIcon className="size-4" />
               Save
             </Button>
@@ -107,7 +103,7 @@ function PasswordInput<S>({
             <div className="relative">
               <Input
                 type={visible ? 'text' : 'password'}
-                className="pr-10 bg-transparent"
+                className="bg-transparent pr-10"
                 id={nameInSchema}
                 placeholder={placeholder}
                 {...field}

@@ -32,22 +32,22 @@ export function ProfilePictureManager({
           : 'Save';
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">Profile Pictures</h2>
-      <p className="text-gray-500 text-sm">Manage your profile pictures.</p>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">Profile Pictures</h2>
+      <p className="text-sm text-gray-500">Manage your profile pictures.</p>
 
       <CardContent className="mt-4 px-0">
         <div className="flex flex-wrap gap-4">
           {profilePictures.map((image, index) => (
-            <div key={index} className="relative w-24 h-24">
+            <div key={index} className="relative h-24 w-24">
               <img
                 src={image.url}
                 alt="Profile"
-                className="w-full h-full object-cover rounded-lg"
+                className="h-full w-full rounded-lg object-cover"
               />
               <button
                 type="button"
-                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 disabled:cursor-not-allowed"
+                className="absolute right-1 top-1 rounded-full bg-black/50 p-1 text-white disabled:cursor-not-allowed"
                 onClick={() => handleDelete(image.id)}
                 disabled={componentState !== 'idle'}
               >
@@ -55,7 +55,7 @@ export function ProfilePictureManager({
               </button>
             </div>
           ))}
-          <label className="w-24 h-24 flex items-center justify-center border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:bg-gray-100">
+          <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-400 hover:bg-gray-100">
             +
             <input
               type="file"
@@ -70,9 +70,9 @@ export function ProfilePictureManager({
       </CardContent>
 
       <Separator />
-      <div className="flex justify-end mt-4">
+      <div className="mt-4 flex justify-end">
         <ButtonWithLoader
-          className="hover:bg-[hsl(var(--primary-hover))]"
+          className=""
           isLoading={componentState !== 'idle'}
           loadingText={buttonText}
           initialText="Save"

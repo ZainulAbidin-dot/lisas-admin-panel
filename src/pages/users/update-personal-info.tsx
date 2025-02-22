@@ -31,19 +31,21 @@ export function UpdatePersonalInfo({
   });
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">User Details</h2>
-      <p className="text-gray-500 text-sm">Personal information (Read-Only).</p>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">User Details</h2>
+      <p className="text-sm text-gray-500">Personal information. (Read-Only)</p>
 
       <Form {...form}>
-        <form onSubmit={(e) => e.preventDefault() /** Prevent form submission */}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+        <form
+          onSubmit={(e) => e.preventDefault() /** Prevent form submission */}
+        >
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             <TextInputWithLabel<TUpdatePersonalInfo>
               nameInSchema="firstName"
               displayName="First Name"
               placeholder="Enter first name"
               type="text"
-              disabled
+              readOnly
             />
 
             <TextInputWithLabel<TUpdatePersonalInfo>
@@ -51,7 +53,7 @@ export function UpdatePersonalInfo({
               displayName="Last Name"
               placeholder="Enter last name"
               type="text"
-              disabled
+              readOnly
             />
 
             <TextInputWithLabel<TUpdatePersonalInfo>
@@ -59,17 +61,16 @@ export function UpdatePersonalInfo({
               displayName="Email"
               placeholder="Enter email"
               type="email"
-              disabled
+              readOnly
             />
-            
+
             <TextInputWithLabel<TUpdatePersonalInfo>
               nameInSchema="phoneNumber"
               displayName="Phone Number"
               placeholder="Enter number"
               type="text"
-              disabled
+              readOnly
             />
-
           </CardContent>
         </form>
       </Form>
@@ -110,7 +111,6 @@ function TextInputWithLabel<S>({
               type={type || 'text'}
               id={nameInSchema}
               placeholder={placeholder}
-              disabled
               {...field}
               {...props}
             />

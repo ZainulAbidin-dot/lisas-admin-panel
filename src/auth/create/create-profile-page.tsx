@@ -20,7 +20,7 @@ import { useCreateProfile } from './use-create-profile';
 
 export function CreateProfilePage() {
   return (
-    <div className="h-dvh flex flex-col">
+    <div className="flex h-dvh flex-col">
       <CreateProfilePageNav />
 
       <CreateProfileForm />
@@ -150,7 +150,7 @@ function CreateProfileForm() {
     <main className="flex flex-grow items-center justify-center px-4">
       <div className="mx-auto w-full max-w-5xl rounded-lg bg-white p-6 shadow-md">
         <h1 className="text-center text-4xl font-bold">Lisa's Friend</h1>
-        <div className="mt-4 flex justify-between items-center gap-3">
+        <div className="mt-4 flex items-center justify-between gap-3">
           <p className="text-muted-foreground">
             {(((step + 1) / formFields.length) * 100).toFixed(0)}%
           </p>
@@ -165,17 +165,13 @@ function CreateProfileForm() {
           />
         </div>
         <div className="mt-6 flex justify-between">
-          <Button
-            onClick={handlePrevious}
-            disabled={step === 0}
-            className="hover:bg-[hsl(var(--primary-hover))]"
-          >
+          <Button onClick={handlePrevious} disabled={step === 0} className="">
             Previous
           </Button>
 
           <ButtonWithLoader
             onClick={handleNext}
-            className="hover:bg-[hsl(var(--primary-hover))]"
+            className=""
             isLoading={isCheckingEmail || isCreatingProfile}
             disabled={Object.values(errors).filter(Boolean).length > 0}
             loadingText={
@@ -293,7 +289,7 @@ function CreateProfilePageNav() {
     <nav
       className={cn(
         'bg-primary text-primary-foreground',
-        'h-16 px-2 sm:px-4 flex items-center'
+        'flex h-16 items-center px-2 sm:px-4'
       )}
     >
       <div className="flex-grow">

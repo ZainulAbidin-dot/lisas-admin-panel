@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 
 import {
@@ -11,26 +10,27 @@ export function ProfilePictureManager({
 }: {
   initialImages: TProfilePic[];
 }) {
-  const {
-    profilePictures,
-  } = useProfilePicturesManager(initialImages);
-
+  const { profilePictures } = useProfilePicturesManager(initialImages);
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">Profile Pictures</h2>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">Profile Pictures</h2>
 
       <CardContent className="mt-4 px-0">
         <div className="flex flex-wrap gap-4">
-          {profilePictures.map((image, index) => (
-            <div key={index} className="relative w-24 h-24">
-              <img
-                src={image.url}
-                alt="Profile"
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          ))}
+          {profilePictures.length > 0 ? (
+            profilePictures.map((image, index) => (
+              <div key={index} className="relative h-24 w-24">
+                <img
+                  src={image.url}
+                  alt="Profile"
+                  className="h-full w-full rounded-lg object-cover"
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No profile pics uploaded.</p>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -46,13 +46,15 @@ export function UpdateProfileInformation({
   );
 
   return (
-    <Card className="p-6 bg-transparent shadow-sm">
-      <h2 className="text-3xl mb-2 font-bold">User Profile</h2>
-      <p className="text-gray-500 text-sm">Tell us more about yourself.</p>
+    <Card className="bg-transparent p-6 shadow-sm">
+      <h2 className="mb-2 text-3xl font-bold">User Profile</h2>
+      <p className="text-sm text-gray-500">Tell us more about yourself.</p>
 
       <Form {...form}>
-        <form onSubmit={(e) => e.preventDefault() /** Prevent form submission */}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+        <form
+          onSubmit={(e) => e.preventDefault() /** Prevent form submission */}
+        >
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             {/* Meeting Preference */}
             <FormField
               control={form.control}
@@ -61,22 +63,25 @@ export function UpdateProfileInformation({
                 <FormItem>
                   <FormLabel>Preferred Communication</FormLabel>
                   <FormControl>
-                    <RadioGroup defaultValue={field.value} className="flex gap-4">
+                    <RadioGroup
+                      defaultValue={field.value}
+                      className="pointer-events-none flex gap-4"
+                    >
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="phone" disabled />
+                          <RadioGroupItem value="phone" />
                         </FormControl>
                         <FormLabel className="!mt-0">Phone</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="penpal" disabled />
+                          <RadioGroupItem value="penpal" />
                         </FormControl>
                         <FormLabel className="!mt-0">Penpal</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="chat" disabled />
+                          <RadioGroupItem value="chat" />
                         </FormControl>
                         <FormLabel className="!mt-0">Chat</FormLabel>
                       </FormItem>
@@ -95,16 +100,19 @@ export function UpdateProfileInformation({
                 <FormItem>
                   <FormLabel>Do you feel lonely?</FormLabel>
                   <FormControl>
-                    <RadioGroup defaultValue={field.value} className="flex gap-4">
+                    <RadioGroup
+                      defaultValue={field.value}
+                      className="pointer-events-none flex gap-4"
+                    >
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="yes" disabled />
+                          <RadioGroupItem value="yes" />
                         </FormControl>
                         <FormLabel className="!mt-0">Yes</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="no" disabled />
+                          <RadioGroupItem value="no" />
                         </FormControl>
                         <FormLabel className="!mt-0">No</FormLabel>
                       </FormItem>
@@ -122,9 +130,9 @@ export function UpdateProfileInformation({
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
                   <FormLabel>Age</FormLabel>
-                  <Select defaultValue={field.value} disabled>
+                  <Select defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="w-full bg-transparent">
+                      <SelectTrigger className="pointer-events-none w-full bg-transparent">
                         <SelectValue placeholder="Select age" />
                       </SelectTrigger>
                     </FormControl>
@@ -151,7 +159,7 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>Describe Yourself</FormLabel>
                   <FormControl>
-                    <Textarea className="bg-transparent" disabled {...field} />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -166,7 +174,7 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>Topics You Like to Discuss</FormLabel>
                   <FormControl>
-                    <Textarea className="bg-transparent" disabled {...field} />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,7 +189,7 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>What Do You Expect from a Friend?</FormLabel>
                   <FormControl>
-                    <Textarea className="bg-transparent" disabled {...field} />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -195,7 +203,10 @@ export function UpdateProfileInformation({
               render={() => (
                 <FormItem className="md:col-span-2">
                   <FormLabel>ID Verification</FormLabel>
-                  <Input className="bg-transparent" type="file" disabled />
+                  <Input
+                    className="pointer-events-none bg-transparent"
+                    type="file"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -203,13 +214,13 @@ export function UpdateProfileInformation({
           </CardContent>
 
           {/* Preview Image For ID Verification */}
-          <div className="mt-2 mb-6">
+          <div className="mb-6 mt-2">
             {idVerificationPreview && (
-              <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="h-64 w-full overflow-hidden rounded-lg bg-gray-100">
                 <img
                   src={idVerificationPreview}
                   alt="Profile Image"
-                  className="w-full h-full object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
             )}

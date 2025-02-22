@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  Loader2Icon,
+  Trash2Icon,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
 
@@ -16,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAxiosDelete } from '@/hooks/use-axios-delete';
 import { useAxiosGet } from '@/hooks/use-axios-get';
 import { getInitials } from '@/lib/utils';
 
@@ -52,12 +58,12 @@ export function UserList() {
     data: usersState,
     setData,
   } = useAxiosGet<TUserListSchema>({
-    url: `/users?page=${currentPage}&page-size=10`,
+    url: `/api/users?page=${currentPage}&page-size=10`,
     validationSchema: usersSchema,
     initialData: null,
   });
 
-  const handleDelete = (id: string) => {
+  const handleDeleteSucess = (id: string) => {
     setData((prev) => {
       if (!prev) {
         return prev;
@@ -70,15 +76,15 @@ export function UserList() {
   };
 
   if (isLoading) {
-    return <div className="text-center p-4 text-gray-600">Loading users </div>;
+    return <div className="p-4 text-center text-gray-600">Loading users </div>;
   }
 
   if (!usersState || usersState.data.length === 0) {
-    return <div className="text-center p-4 text-gray-600">No users found.</div>;
+    return <div className="p-4 text-center text-gray-600">No users found.</div>;
   }
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4 p-4">
       <h1 className="text-2xl font-bold">Users</h1>
       <Table>
         <TableCaption>A list of registered users.</TableCaption>
@@ -90,7 +96,7 @@ export function UserList() {
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Billing Address</TableHead>
-            <TableHead className="text-center w-[150px]">Actions</TableHead>
+            <TableHead className="w-[150px] text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -116,13 +122,10 @@ export function UserList() {
                 <Button size="sm" variant="outline" asChild>
                   <Link to={`/user-detail/${user.id}`}>View</Link>
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  Delete
-                </Button>
+                <DeleteUserButton
+                  id={user.id}
+                  onDeleteSuccess={() => handleDeleteSucess(user.id)}
+                />
               </TableCell>
             </TableRow>
           ))}
@@ -142,8 +145,44 @@ export function UserList() {
   );
 }
 
+function DeleteUserButton({
+  id,
+  onDeleteSuccess,
+}: {
+  id: string;
+  onDeleteSuccess: () => void;
+}) {
+  const { isDeleting, deleteFn } = useAxiosDelete({
+    url: `/api/users/${id}`,
+    showSnackbarOnError: true,
+  });
+
+  const handleDelete = async () => {
+    const success = await deleteFn();
+    if (success) {
+      onDeleteSuccess();
+    }
+  };
+
+  return (
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={handleDelete}
+      disabled={isDeleting}
+    >
+      {isDeleting ? (
+        <Loader2Icon className="h-4 w-4 animate-spin" />
+      ) : (
+        <Trash2Icon className="h-4 w-4" />
+      )}
+      <span>Delete</span>
+    </Button>
+  );
+}
+
 function Pagination({
-  metadata: { totalPages, currentPage, pageSize },
+  metadata: { totalPages, currentPage, totalCount },
   onPageChange,
 }: {
   metadata: TUserListSchema['metadata'];
@@ -154,8 +193,8 @@ function Pagination({
   };
 
   const summary = (
-    <p className="text-sm text-gray-600 font-medium">
-      Page {currentPage} of {totalPages} ({pageSize * totalPages} items)
+    <p className="text-sm font-medium text-gray-600">
+      Page {currentPage} of {totalPages} ({totalCount} items)
     </p>
   );
 
@@ -199,7 +238,7 @@ function Pagination({
               key={index}
               variant={currentPage === index + 1 ? 'default' : 'outline'}
               size="sm"
-              className="font-mono text-center"
+              className="text-center font-mono"
               onClick={() => handlePageClick(index + 1)}
             >
               {index + 1}
@@ -263,7 +302,7 @@ function Pagination({
                     ? 'default'
                     : 'outline'
               }
-              className="font-mono text-center"
+              className="text-center font-mono"
               size="sm"
               onClick={() => typeof page === 'number' && onPageChange(page)}
               disabled={page === '...'}

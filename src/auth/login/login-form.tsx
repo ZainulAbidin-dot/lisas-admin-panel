@@ -42,7 +42,7 @@ export function LoginForm() {
   return (
     <React.Fragment>
       <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
-      <p className="mt-4 text-gray-600 text-xl font-semibold">Welcome back.</p>
+      <p className="mt-4 text-xl font-semibold text-gray-600">Welcome back.</p>
       <Form {...form}>
         <form className="my-4" onSubmit={form.handleSubmit(login)}>
           <div className="flex flex-col space-y-4">
@@ -110,7 +110,7 @@ export function LoginForm() {
             />
             <ButtonWithLoader
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--primary-hover))]"
+              className="mt-6 w-full items-center justify-center gap-2"
               type="submit"
               disabled={isSubmitting || isError}
               isLoading={isSubmitting}

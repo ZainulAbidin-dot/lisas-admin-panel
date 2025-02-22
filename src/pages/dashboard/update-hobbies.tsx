@@ -59,8 +59,8 @@ export function UpdateHobbies({
   const { updateHobbies, isSubmitting } = useUpdateHobbies();
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">User Hobbies</h2>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">User Hobbies</h2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updateHobbies)}>
@@ -78,7 +78,7 @@ export function UpdateHobbies({
                           key={hobby.value}
                           onClick={() => toggleHobby(hobby.value)}
                           className={cn(
-                            'cursor-pointer px-3 py-1 rounded-lg transition-colors',
+                            'cursor-pointer rounded-lg px-3 py-1 transition-colors',
                             selectedHobbies.includes(hobby.value)
                               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                               : 'bg-gray-200 text-gray-700 hover:bg-accent'
@@ -97,12 +97,8 @@ export function UpdateHobbies({
 
           <Separator />
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isSubmitting}
-            >
+          <div className="mt-4 flex justify-end">
+            <Button type="submit" className="" disabled={isSubmitting}>
               <SaveIcon className="size-4" />
               Save
             </Button>

@@ -27,19 +27,21 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
   });
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">Address</h2>
-      <p className="text-gray-500 text-sm">Your complete address details.</p>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">Address</h2>
+      <p className="text-sm text-gray-500">
+        Your complete address details. (Read Only)
+      </p>
 
       <Form {...form}>
         <form>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             <TextInputWithLabel<TUpdateAddress>
               nameInSchema="address"
               displayName="Street Address"
               placeholder="Enter street address"
               type="text"
-              disabled
+              readOnly
             />
 
             <TextInputWithLabel<TUpdateAddress>
@@ -47,7 +49,7 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
               displayName="City"
               placeholder="Enter city"
               type="text"
-              disabled
+              readOnly
             />
 
             <TextInputWithLabel<TUpdateAddress>
@@ -55,7 +57,7 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
               displayName="Zip Code"
               placeholder="Enter zip code"
               type="text"
-              disabled
+              readOnly
             />
 
             <TextInputWithLabel<TUpdateAddress>
@@ -63,7 +65,7 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
               displayName="Country"
               placeholder="Enter country"
               type="text"
-              disabled
+              readOnly
             />
           </CardContent>
         </form>
@@ -79,7 +81,6 @@ function TextInputWithLabel<S>({
   placeholder,
   className,
   labelClassName,
-  disabled,
   ...props
 }: {
   displayName: string;
@@ -88,7 +89,6 @@ function TextInputWithLabel<S>({
   type?: 'email' | 'text';
   className?: string;
   labelClassName?: string;
-  disabled?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>) {
   const form = useFormContext();
 
@@ -109,7 +109,6 @@ function TextInputWithLabel<S>({
               placeholder={placeholder}
               {...field}
               {...props}
-              disabled={disabled}
             />
           </FormControl>
           <FormMessage />

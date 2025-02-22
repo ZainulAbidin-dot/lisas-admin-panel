@@ -74,13 +74,13 @@ export function UpdateProfileInformation({
   };
 
   return (
-    <Card className="p-6 bg-transparent shadow-sm">
-      <h2 className="text-3xl mb-2 font-bold">User Profile</h2>
-      <p className="text-gray-500 text-sm">Tell us more about yourself.</p>
+    <Card className="bg-transparent p-6 shadow-sm">
+      <h2 className="mb-2 text-3xl font-bold">User Profile</h2>
+      <p className="text-sm text-gray-500">Tell us more about yourself.</p>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updateProfileInformation)}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             {/* Meeting Preference */}
             <FormField
               control={form.control}
@@ -259,13 +259,13 @@ export function UpdateProfileInformation({
           </CardContent>
 
           {/* Preview Image For ID Verification */}
-          <div className="mt-2 mb-6">
+          <div className="mb-6 mt-2">
             {idVerificationPreview && (
-              <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="h-64 w-full overflow-hidden rounded-lg bg-gray-100">
                 <img
                   src={idVerificationPreview}
                   alt="Profile Image"
-                  className="w-full h-full object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
             )}
@@ -273,12 +273,8 @@ export function UpdateProfileInformation({
 
           <Separator />
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isSubmitting}
-            >
+          <div className="mt-4 flex justify-end">
+            <Button type="submit" className="" disabled={isSubmitting}>
               <SaveIcon />
               Save
             </Button>

@@ -56,10 +56,6 @@ export function useAxiosGet<T>({
           setIsLoading(false);
         })
         .catch((error) => {
-          if (error instanceof Error && error.name !== 'CanceledError') {
-            setIsLoading(false);
-          }
-
           const { errorMessage } = handleAxiosError(
             error,
             `Failed to get ${url}`
@@ -68,6 +64,9 @@ export function useAxiosGet<T>({
           setError(errorMessage);
 
           if (showSnackbarOnError) toast.error(errorMessage);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     },
     [

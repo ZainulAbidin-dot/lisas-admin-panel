@@ -33,13 +33,13 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
   const { updateAddress, isSubmitting } = useUpdateAddress();
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">Address</h2>
-      <p className="text-gray-500 text-sm">update your complete address.</p>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">Address</h2>
+      <p className="text-sm text-gray-500">update your complete address.</p>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updateAddress)}>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 px-0">
+          <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             <TextInputWithLabel<TUpdateAddress>
               nameInSchema="address"
               displayName="Sreet Address"
@@ -72,12 +72,8 @@ export function UpdateAddress({ address }: { address: TUpdateAddress }) {
 
           <Separator />
 
-          <div className="flex justify-end mt-4">
-            <Button
-              type="submit"
-              className="hover:bg-[hsl(var(--primary-hover))]"
-              disabled={isSubmitting}
-            >
+          <div className="mt-4 flex justify-end">
+            <Button type="submit" className="" disabled={isSubmitting}>
               <SaveIcon className="size-4" />
               Save
             </Button>

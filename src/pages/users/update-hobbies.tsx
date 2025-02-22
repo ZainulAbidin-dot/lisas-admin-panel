@@ -47,8 +47,8 @@ export function UpdateHobbies({
   const { updateHobbies } = useUpdateHobbies();
 
   return (
-    <Card className="p-6 bg-transparent">
-      <h2 className="text-3xl font-bold mb-2">User Hobbies</h2>
+    <Card className="bg-transparent p-6">
+      <h2 className="mb-2 text-3xl font-bold">User Hobbies</h2>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(updateHobbies)}>
@@ -65,7 +65,7 @@ export function UpdateHobbies({
                         <Badge
                           key={hobby.value}
                           className={cn(
-                            'cursor-not-allowed px-3 py-1 rounded-lg transition-colors opacity-50',
+                            'pointer-events-none rounded-lg px-3 py-1 transition-colors',
                             selectedHobbies.includes(hobby.value)
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-gray-200 text-gray-700'
