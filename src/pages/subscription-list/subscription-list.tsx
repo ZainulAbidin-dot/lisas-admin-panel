@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
-import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 import { z } from 'zod';
 
 import { PaginationBar } from '@/components/composed/pagination-bar';
 import { LoadingState } from '@/components/loading-state';
-import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -23,8 +22,8 @@ const subscriptionsSchema = z.object({
   data: z.array(
     z.object({
       id: z.string(),
-      currentPeriodStart: z.string(),
-      currentPeriodEnd: z.string(),
+      currentPeriodStart: z.string().transform((val) => new Date(val)),
+      currentPeriodEnd: z.string().transform((val) => new Date(val)),
       plan: z.string(),
       user: z.object({
         name: z.string(),
@@ -48,6 +47,11 @@ export function SubscriptionList() {
       initialData: null,
       validationSchema: subscriptionsSchema,
     });
+
+  console.log({
+    isLoading,
+    subscriptionsState,
+  });
 
   if (isLoading) {
     return <LoadingState />;
@@ -73,7 +77,7 @@ export function SubscriptionList() {
             <TableHead>Email</TableHead>
             <TableHead>Plan</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[150px] text-center">Actions</TableHead>
+            <TableHead>Period</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -89,21 +93,22 @@ export function SubscriptionList() {
               <TableCell>{subscription.user.email}</TableCell>
               <TableCell>{subscription.plan}</TableCell>
               <TableCell>
-                {new Date(subscription.currentPeriodEnd) > new Date()
-                  ? 'active'
-                  : 'expired'}
+                {subscription.currentPeriodEnd > new Date() ? (
+                  <span className="text-green-500">Active</span>
+                ) : (
+                  <span className="text-red-500">Expired</span>
+                )}
               </TableCell>
-              <TableCell className="">
-                <Button size="sm" variant="outline" asChild>
-                  <Link to={`/user-detail/${subscription.id}`}>View</Link>
-                </Button>
+              <TableCell>
+                {format(subscription.currentPeriodStart, 'dd MMM yyyy')} -{' '}
+                {format(subscription.currentPeriodEnd, 'dd MMM yyyy')}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={5}>
+            <TableCell colSpan={6}>
               <PaginationBar
                 metadata={subscriptionsState.metadata}
                 onPageChange={setCurrentPage}

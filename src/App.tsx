@@ -10,7 +10,6 @@ import { SocketProvider } from './context/socket-context';
 import { ChatSection } from './pages/chat/_components/chat-main-area';
 import { NoChatSelected } from './pages/chat/_components/no-chat-selected';
 import { DashboardPage } from './pages/dashboard/dashboard-page';
-import SubscriptionDetail from './pages/subscription-list/subscription-detail';
 import { SubscriptionList } from './pages/subscription-list/subscription-list';
 import { UserDetail } from './pages/users/user-detail';
 import { UserList } from './pages/users/user-list';
@@ -25,10 +24,6 @@ export function App() {
           <Route element={<SocketProvider />}>
             <Route element={<RequireAuth requireSubscription={false} />}>
               <Route path="/subscription" element={<SubscriptionList />} />
-              <Route
-                path="/subscription-detail/:id"
-                element={<SubscriptionDetail />}
-              />
               <Route path="/" element={<UserList />} />
               <Route path="/users" element={<UserList />} />
               <Route path="/user-detail/:id" element={<UserDetail />} />

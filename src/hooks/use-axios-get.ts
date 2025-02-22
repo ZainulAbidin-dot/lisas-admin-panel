@@ -10,7 +10,6 @@ export function useAxiosGet<T>({
   url,
   validationSchema,
   initialData,
-  immediate = true,
   enabled = true,
   showSnackbarOnSuccess = false,
   showSnackbarOnError = false,
@@ -19,7 +18,6 @@ export function useAxiosGet<T>({
   url: string;
   validationSchema: z.ZodSchema;
   initialData: T | null;
-  immediate?: boolean;
   enabled?: boolean;
   showSnackbarOnSuccess?: boolean;
   showSnackbarOnError?: boolean;
@@ -56,6 +54,9 @@ export function useAxiosGet<T>({
           setIsLoading(false);
         })
         .catch((error) => {
+          if (error instanceof Error && error.name !== 'CanceledError') {
+            setIsLoading(false);
+          }
           const { errorMessage } = handleAxiosError(
             error,
             `Failed to get ${url}`
@@ -64,9 +65,6 @@ export function useAxiosGet<T>({
           setError(errorMessage);
 
           if (showSnackbarOnError) toast.error(errorMessage);
-        })
-        .finally(() => {
-          setIsLoading(false);
         });
     },
     [
@@ -82,21 +80,19 @@ export function useAxiosGet<T>({
   React.useEffect(() => {
     const abortController = new AbortController();
 
-    if (immediate && enabled) {
+    if (enabled) {
       fetchData(abortController);
     }
 
     return () => {
       abortController.abort();
     };
-  }, [fetchData, immediate, enabled]);
+  }, [fetchData, enabled]);
 
   return {
     data,
     setData,
     isLoading,
     error,
-
-    fetchFn: fetchData,
   };
 }
