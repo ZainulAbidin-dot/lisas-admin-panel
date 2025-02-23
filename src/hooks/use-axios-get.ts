@@ -29,6 +29,11 @@ export function useAxiosGet<T>({
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    setData(initialData);
+    setError(null);
+  }, [url, initialData]);
+
   const fetchData = React.useCallback(
     (abortController?: AbortController) => {
       setIsLoading(true);

@@ -1,39 +1,55 @@
+import { useCallback, useState } from 'react';
+
 import { Outlet, useParams } from 'react-router-dom';
 
 import { LoadingState } from '@/components/loading-state';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useDebouncedSearch } from '@/hooks/use-debounced-search';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 import { ChatListItem } from './_components/chat-list-item';
-import { ChatProvider, useChatContext } from './chat-context';
+import { ChatProvider, MatchContact, useChatContext } from './chat-context';
 
 function ChatSidebar() {
   const { matchContactState, onlineUsers } = useChatContext();
   const isMobile = useIsMobile();
-
   const { matchId } = useParams();
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterFn = useCallback((contact: MatchContact, query: string) => {
+    console.log('Filtering: ', query);
+    return contact.userName.toLowerCase().includes(query.toLowerCase());
+  }, []);
+
+  const filteredContacts = useDebouncedSearch(
+    matchContactState.data,
+    searchQuery,
+    filterFn,
+    500
+  );
 
   return (
     <ScrollArea
       className={cn(
-        'w-1/5 min-w-64 h-full border-r',
+        'h-full w-1/5 min-w-64 border-r',
         isMobile ? (matchId ? 'hidden' : 'w-full') : ''
       )}
     >
       {/* Search bar */}
-      <div className="px-2 py-2 md:py-4 md:px-4">
+      <div className="px-2 py-2 md:px-4 md:py-4">
         <Input
           placeholder="Search contacts..."
-          className="bg-transparent mb-4"
-          onKeyDown={(e) => e.key === 'Enter' && console.log('Search')}
+          className="mb-4 bg-transparent"
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
 
         {matchContactState.queryState === 'fetching' ? <LoadingState /> : null}
 
         <div className="flex flex-col gap-2">
-          {matchContactState.data.map((contact) => (
+          {filteredContacts.map((contact) => (
             <ChatListItem
               key={contact.matchId}
               contact={contact}

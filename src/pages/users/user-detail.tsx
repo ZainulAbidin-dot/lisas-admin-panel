@@ -75,7 +75,7 @@ export function UserDetail() {
   const { id } = useParams();
 
   const { data, isLoading } = useAxiosGet<TGetUserDetailSchema>({
-    url: `/api/users/${id}`,
+    url: `/users/${id}`,
     validationSchema: getUserDetailSchema,
     initialData: null,
   });

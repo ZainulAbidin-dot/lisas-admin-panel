@@ -49,7 +49,7 @@ export function UserList() {
     data: usersState,
     setData,
   } = useAxiosGet<TUserListSchema>({
-    url: `/api/users?page=${currentPage}&page-size=10`,
+    url: `/users?page=${currentPage}&page-size=10`,
     validationSchema: usersSchema,
     initialData: null,
   });
@@ -144,7 +144,7 @@ function DeleteUserButton({
   onDeleteSuccess: () => void;
 }) {
   const { isDeleting, deleteFn } = useAxiosDelete({
-    url: `/api/users/${id}`,
+    url: `/users/${id}`,
     showSnackbarOnError: true,
   });
 

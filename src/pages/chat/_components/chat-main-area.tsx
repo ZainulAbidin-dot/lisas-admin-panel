@@ -1,30 +1,67 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ArrowLeftIcon, Loader2Icon, PhoneIcon, SendIcon } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
-import useMeasure from 'react-use-measure';
+import { Link } from 'react-router-dom';
 
 import { LoadingState } from '@/components/loading-state';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getInitials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 
-import { MatchContact, type Message, useChatContext } from '../chat-context';
+import {
+  ChatUser,
+  Message,
+  type Message as MessageComponent,
+  useChatContext,
+} from '../chat-context';
 
-type ChatHeaderProps = {
-  name: string;
-  profileImage?: string;
-  isOnline: boolean;
-};
+export function ChatSection() {
+  const { conversationState } = useChatContext();
 
-export function ChatHeader({ name, profileImage, isOnline }: ChatHeaderProps) {
-  const isMobile = useIsMobile();
+  const isLoading =
+    (conversationState.queryState === 'fetching' &&
+      conversationState.messages.length === 0) ||
+    !conversationState.chatUser;
+
+  if (isLoading) {
+    return (
+      <section className="flex h-full flex-grow flex-col gap-4 overflow-hidden px-2 py-2">
+        <div className="flex h-full flex-col overflow-y-auto">
+          <LoadingState />
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-between shadow-md pb-2 px-2">
+    <section className="flex h-full flex-grow flex-col gap-4 overflow-hidden px-2 py-2">
+      <div className="flex h-full flex-col overflow-y-auto">
+        <ChatHeader />
+
+        <ChatMainArea />
+
+        <ChatInputArea />
+      </div>
+    </section>
+  );
+}
+
+function ChatHeader() {
+  const isMobile = useIsMobile();
+
+  const { conversationState, onlineUsers } = useChatContext();
+
+  const { userName, profileImage } = conversationState.chatUser!;
+
+  const isOnline = onlineUsers.has(conversationState.chatUser!.userId);
+
+  return (
+    <div className="flex items-center justify-between px-2 pb-2 shadow-md">
       <div className="flex items-center gap-2">
         {isMobile ? (
           <Link to="/chat">
@@ -32,24 +69,19 @@ export function ChatHeader({ name, profileImage, isOnline }: ChatHeaderProps) {
             <span className="sr-only">Back</span>
           </Link>
         ) : null}
-        <Avatar className="w-10 h-10 rounded-full">
+        <Avatar className="h-10 w-10 rounded-full">
           <AvatarImage src={profileImage} />
-          <AvatarFallback>
-            {name
-              .split(' ')
-              .map((n) => n[0]?.toUpperCase())
-              .join('')}
-          </AvatarFallback>
+          <AvatarFallback>{getInitials(userName)}</AvatarFallback>
         </Avatar>
         <div>
           <p
             className={cn(
-              'font-semibold flex items-center gap-1',
-              'after:w-2 after:h-2 after:rounded-full after:bg-primary',
+              'flex items-center gap-1 font-semibold',
+              'after:h-2 after:w-2 after:rounded-full after:bg-primary',
               isOnline ? 'after:bg-green-500' : 'after:bg-red-500'
             )}
           >
-            {name}
+            {userName}
           </p>
         </div>
       </div>
@@ -60,13 +92,10 @@ export function ChatHeader({ name, profileImage, isOnline }: ChatHeaderProps) {
   );
 }
 
-export function Message({
-  message,
-  user,
-}: {
-  message: Message;
-  user: MatchContact;
-}) {
+const MessageComponent = React.forwardRef<
+  HTMLDivElement,
+  { message: Message; user: ChatUser; showDateSeparator: boolean }
+>(({ message, user, showDateSeparator }, ref) => {
   const currentUserId = useAuthStore((state) => state.token?.decoded?.userId);
 
   const isOwnMessage = message.senderId === currentUserId;
@@ -76,157 +105,128 @@ export function Message({
   const profileImage = user.profileImage;
 
   return (
-    <div
-      className={cn(
-        'flex  my-2 items-end',
-        isOwnMessage ? 'justify-end' : 'justify-start'
-      )}
-    >
-      {!isOwnMessage && (
-        <Avatar className="w-8 h-8 mr-2">
-          <AvatarImage src={profileImage} />
-          <AvatarFallback>
-            {sender
-              .split(' ')
-              .map((n) => n[0]?.toUpperCase())
-              .join('')}
-          </AvatarFallback>
-        </Avatar>
-      )}
+    <>
+      {showDateSeparator ? <DateSeparator date={time} /> : null}
       <div
         className={cn(
-          'relative p-3 max-w-xs rounded-lg',
-          isOwnMessage
-            ? 'bg-secondary text-secondary-foreground'
-            : 'bg-primary text-primary-foreground',
-          !isOwnMessage ? 'border-l-2 border-secondary' : ''
+          'my-2 flex items-end',
+          isOwnMessage ? 'justify-end' : 'justify-start'
         )}
+        ref={ref}
       >
-        <p className="text-sm">{content}</p>
-        <p className="text-xs text-right opacity-70">
-          {time.toLocaleDateString(undefined, {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-          })}{' '}
-          {time.toLocaleTimeString(undefined, {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </p>
+        {!isOwnMessage && (
+          <Avatar className="mr-2 h-8 w-8">
+            <AvatarImage src={profileImage} />
+            <AvatarFallback>{getInitials(sender)}</AvatarFallback>
+          </Avatar>
+        )}
+        <div
+          className={cn(
+            'relative max-w-xs rounded-lg p-3',
+            isOwnMessage
+              ? 'bg-secondary text-secondary-foreground'
+              : 'bg-primary text-primary-foreground',
+            !isOwnMessage ? 'border-l-2 border-secondary' : ''
+          )}
+        >
+          <p className="text-sm">{content}</p>
+          <p className="text-right text-xs opacity-70">
+            {time.toLocaleDateString(undefined, {
+              day: '2-digit',
+              month: '2-digit',
+              year: '2-digit',
+            })}{' '}
+            {time.toLocaleTimeString(undefined, {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+});
 
-export function ChatMainArea({
-  messages,
-  chatUser,
-  loadMoreMessages,
-}: {
-  messages: Message[];
-  chatUser: MatchContact;
-  loadMoreMessages: (abortSignal?: AbortSignal) => Promise<void>;
-  isLoadingMore: boolean;
-}) {
-  const scrollContainer = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const heightRef = useRef<number>(0);
-  const oldMessagesLoaded = useRef(false);
-  const [ref, { height: newHeight }] = useMeasure();
+function ChatMainArea() {
+  const { conversationState } = useChatContext();
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const reversedMessages = [...messages].reverse();
-  const groupedMessages: (Message | { type: 'date'; label: string })[] = [];
-  let lastDateLabel: string | null = null;
+  const { messages, loadMoreMessages, chatUser, hasMore, page, queryState } =
+    conversationState;
 
-  for (const message of reversedMessages) {
-    const messageDate = formatDateLabel(new Date(message.createdAt));
-
-    if (messageDate !== lastDateLabel) {
-      groupedMessages.push({ type: 'date', label: messageDate });
-      lastDateLabel = messageDate;
+  function handleScroll() {
+    const { scrollHeight, scrollTop, clientHeight } =
+      messageContainerRef.current!;
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
+      if (queryState === 'idle' && hasMore) {
+        loadMoreMessages(page);
+      }
     }
-
-    groupedMessages.push(message);
   }
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
-  const scrollToLast = useCallback(() => {
-    if (!scrollContainer.current) return;
-    if (newHeight > heightRef.current) {
-      scrollContainer.current.scrollTop = newHeight - heightRef.current;
-      heightRef.current = newHeight;
-    }
-  }, [newHeight]);
-
-  useEffect(() => {
-    if (!scrollContainer.current || !bottomRef.current) {
-      return;
-    }
-    console.log('layout effect triggered');
-
-    if (oldMessagesLoaded.current) {
-      scrollToLast();
-      oldMessagesLoaded.current = false;
-    } else {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [scrollToLast]);
-
-  const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
-    if (!scrollContainer.current) return;
-    if (scrollContainer.current.scrollTop < 500) {
-      console.log('SCROLLED TO TOP');
-      console.log('scrollTop', e.currentTarget.scrollTop);
-      console.log('newHeight', newHeight);
-      console.log('oldHeight', heightRef.current);
-      await loadMoreMessages();
-      oldMessagesLoaded.current = true;
-    }
-  };
+  let visitedDate: Date | null = null;
 
   return (
     <div
-      className={cn('px-4 overflow-y-auto h-full', 'chat-scrolling-container')}
-      ref={scrollContainer}
+      className={cn(
+        'h-full -scale-y-100 overflow-y-scroll px-4',
+        'chat-scrolling-container'
+      )}
+      ref={messageContainerRef}
       onScroll={handleScroll}
     >
-      <div ref={ref}>
-        {groupedMessages.map((item, index) =>
-          'type' in item ? (
-            <div key={index} className="text-center text-gray-500 my-2">
-              {item.label}
-            </div>
-          ) : (
-            <Message key={item.id} message={item} user={chatUser} />
-          )
-        )}
+      <div className="-scale-y-100">
+        {messages.map((item) => {
+          let showDateSeparator = false;
+          if (
+            !visitedDate ||
+            !isSameDay(visitedDate, new Date(item.createdAt))
+          ) {
+            visitedDate = new Date(item.createdAt);
+            showDateSeparator = true;
+          }
+
+          return (
+            <MessageComponent
+              key={item.id}
+              message={item}
+              user={chatUser!}
+              showDateSeparator={showDateSeparator}
+            />
+          );
+        })}
       </div>
-      <div ref={bottomRef} />
+      {queryState === 'fetching' ? <LoadingState /> : null}
     </div>
   );
 }
 
-export function ChatInputArea({
-  addMessage,
-  isSending,
-}: {
-  addMessage: (message: string) => Promise<boolean>;
-  isSending: boolean;
-}) {
+function DateSeparator({ date }: { date: Date }) {
+  return (
+    <div className={cn('flex items-center justify-between gap-2 px-2 py-2')}>
+      <hr className="flex-grow" />
+      <p className="text-sm">{formatDateLabel(date)}</p>
+      <hr className="flex-grow" />
+    </div>
+  );
+}
+
+function ChatInputArea() {
   const [input, setInput] = useState('');
+
+  const {
+    sendMessage,
+    conversationState: { chatUser },
+  } = useChatContext();
 
   const handleSendMsg = async () => {
     if (!input.trim()) return;
-    addMessage(input);
+    sendMessage.fn(chatUser!.matchId, input, chatUser!.userId);
     setInput('');
   };
 
   return (
-    <div className="flex items-center gap-2 py-2 px-2 md:px-2 border-t bg-white shadow-md">
+    <div className="flex items-center gap-2 border-t bg-white px-2 py-2 shadow-md md:px-2">
       <Input
         placeholder="Enter Message..."
         className="flex-1 bg-transparent"
@@ -234,61 +234,19 @@ export function ChatInputArea({
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSendMsg()}
       />
-      <Button size="icon" onClick={handleSendMsg} disabled={isSending}>
-        {isSending ? <Loader2Icon className="animate-spin" /> : <SendIcon />}
+      <Button
+        size="icon"
+        onClick={handleSendMsg}
+        disabled={sendMessage.isSending}
+      >
+        {sendMessage.isSending ? (
+          <Loader2Icon className="animate-spin" />
+        ) : (
+          <SendIcon />
+        )}
         <span className="sr-only">Send Message</span>
       </Button>
     </div>
-  );
-}
-
-export function ChatSection() {
-  const { sendMessage, conversationState, loadMoreMessages, onlineUsers } =
-    useChatContext();
-
-  const matchId = useParams().matchId!;
-
-  const { chatUser, messages, queryState } = conversationState;
-
-  const isLoading = queryState === 'fetching' || !chatUser;
-
-  if (isLoading) {
-    return (
-      <section className="flex-grow flex flex-col gap-4 px-2 py-2 h-full overflow-hidden">
-        <div className="flex flex-col h-full overflow-y-auto">
-          <LoadingState />
-        </div>
-      </section>
-    );
-  }
-
-  const isSending = conversationState.queryState === 'sending-message';
-  const isLoadingMoreMsgs =
-    conversationState.queryState === 'loading-more-messages';
-
-  const addMessage = (content: string) => {
-    return sendMessage(matchId, content, chatUser.userId);
-  };
-
-  return (
-    <section className="flex-grow flex flex-col gap-4 px-2 py-2 h-full overflow-hidden">
-      <div className="flex flex-col h-full overflow-y-auto">
-        <ChatHeader
-          name={chatUser.userName}
-          profileImage={chatUser.profileImage}
-          isOnline={onlineUsers.has(chatUser.userId)}
-        />
-
-        <ChatMainArea
-          messages={messages}
-          chatUser={chatUser}
-          loadMoreMessages={loadMoreMessages}
-          isLoadingMore={isLoadingMoreMsgs}
-        />
-
-        <ChatInputArea addMessage={addMessage} isSending={isSending} />
-      </div>
-    </section>
   );
 }
 

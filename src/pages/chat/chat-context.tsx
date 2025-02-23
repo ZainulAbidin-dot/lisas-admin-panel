@@ -6,20 +6,55 @@ import React, {
   useState,
 } from 'react';
 
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
 import { useSocket } from '@/context/socket-context';
+import { useAxiosGet } from '@/hooks/use-axios-get';
 import { handleAxiosError } from '@/lib/handle-api-error';
 
-export type MatchContact = {
-  userId: string;
-  userName: string;
-  profileImage: string;
-  matchId: string;
-  unreadMsgCount: number;
-};
+const getMatchContactsSchema = z
+  .object({
+    matchContacts: z.array(
+      z.object({
+        matchId: z.string(),
+        userId: z.string(),
+        userRole: z.enum(['user', 'admin']),
+        userName: z.string(),
+        unreadMsgCount: z.number(),
+        profileImage: z.string().optional(),
+      })
+    ),
+  })
+  .transform((data) => data.matchContacts);
+
+const getChatUser = z
+  .object({
+    user: z.object({
+      matchId: z.string(),
+      userId: z.string(),
+      userName: z.string(),
+      profileImage: z.string().optional(),
+    }),
+  })
+  .transform((data) => data.user);
+
+const getChatMessagesSchema = z.array(
+  z.object({
+    id: z.string(),
+    senderId: z.string(),
+    text: z.string(),
+    createdAt: z.string(),
+  })
+);
+
+export type MatchContact = z.infer<typeof getMatchContactsSchema>[number];
+
+export type ChatUser = z.infer<typeof getChatUser>;
+
+export type Message = z.infer<typeof getChatMessagesSchema>[number];
 
 type MatchContactState = {
   queryState: 'idle' | 'fetching';
@@ -27,235 +62,131 @@ type MatchContactState = {
   error: string | null;
 };
 
-export type Message = {
-  id: string;
-  senderId: string;
-  text: string;
-  createdAt: string; // ISO timestamp
-};
-
 type ConversationState = {
-  queryState: 'idle' | 'fetching' | 'sending-message' | 'loading-more-messages';
+  queryState: 'idle' | 'fetching';
   error: string | null;
   page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
   hasMore: boolean;
-  chatUser: MatchContact | null;
+  chatUser: ChatUser | null;
   messages: Message[];
+  loadMoreMessages: (
+    page: number,
+    abortController?: AbortController
+  ) => Promise<void>;
 };
 
 export interface ChatContextType {
   matchContactState: MatchContactState;
   conversationState: ConversationState;
   onlineUsers: Set<string>;
-  sendMessage: (
-    matchId: string,
-    content: string,
-    receiverId: string
-  ) => Promise<boolean>;
-  loadMoreMessages: (abortSignal?: AbortSignal) => Promise<void>;
+  sendMessage: {
+    isSending: boolean;
+    fn: (
+      matchId: string,
+      content: string,
+      receiverId: string
+    ) => Promise<boolean>;
+  };
 }
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [matchContactState, setMatchContactState] = useState<MatchContactState>(
-    {
-      queryState: 'fetching',
-      data: [],
-      error: null,
-    }
-  );
+  const { matchId } = useParams();
 
-  const [conversationState, setConversationState] = useState<ConversationState>(
-    {
-      queryState: 'fetching',
-      page: 1,
-      hasMore: false,
-      error: null,
-      chatUser: null,
-      messages: [],
-    }
-  );
+  const {
+    data: matchContacts,
+    setData: setMatchContacts,
+    isLoading: isFetchingMatchContacts,
+    error: matchContactsError,
+  } = useAxiosGet<MatchContact[]>({
+    url: '/chat/match-contacts',
+    initialData: [],
+    validationSchema: getMatchContactsSchema,
+  });
 
-  const location = useLocation();
+  const { data: chatUser, isLoading: isFetchingChatUser } =
+    useAxiosGet<ChatUser>({
+      url: `/chat/${matchId}/user`,
+      initialData: null,
+      validationSchema: getChatUser,
+      enabled: !!matchId,
 
-  const isChatPage = location.pathname.startsWith('/chat');
+      onSuccess: useCallback(() => {
+        setMatchContacts((prev) => {
+          if (!prev) return prev;
 
-  const onlineUsers = useOnlineUsers({ enable: isChatPage });
-
-  const axiosPrivate = useAxiosPrivate();
-  const params = useParams();
-  const { socket } = useSocket();
-
-  const fetchMatchContacts = useCallback(
-    async (abortSignal?: AbortSignal) => {
-      setMatchContactState({ queryState: 'fetching', data: [], error: null });
-      try {
-        const response = await axiosPrivate.get('/chat/match-contacts', {
-          signal: abortSignal,
-        });
-        setMatchContactState({
-          queryState: 'idle',
-          data: response.data.data.matchContacts,
-          error: null,
-        });
-      } catch (error) {
-        const { errorMessage } = handleAxiosError(
-          error,
-          'Error fetching contacts'
-        );
-        setMatchContactState({
-          queryState: 'idle',
-          data: [],
-          error: errorMessage,
-        });
-      }
-    },
-    [axiosPrivate]
-  );
-
-  const fetchConversation = useCallback(
-    async (abortSignal?: AbortSignal) => {
-      if (!params.matchId) return;
-      setConversationState((prev) => ({
-        ...prev,
-        queryState: 'fetching',
-        error: null,
-      }));
-      try {
-        const response = await axiosPrivate.get(
-          `/chat/conversations/${params.matchId}`,
-          { signal: abortSignal }
-        );
-
-        setConversationState({
-          queryState: 'idle',
-          page: 1,
-          hasMore: response.data.data.chatMessages.length >= PAGE_SIZE,
-          error: null,
-          chatUser: response.data.data.chatUser,
-          messages: response.data.data.chatMessages,
-        });
-
-        setMatchContactState((prev) => ({
-          ...prev,
-          data: prev.data.map((contact) => {
-            if (contact.matchId === params.matchId) {
+          return prev.map((contact) => {
+            if (contact.matchId === matchId) {
               return {
                 ...contact,
                 unreadMsgCount: 0,
               };
             }
             return contact;
-          }),
-        }));
-      } catch (error) {
-        const { errorMessage } = handleAxiosError(
-          error,
-          'Error fetching conversation'
-        );
-        setConversationState((prev) => ({
-          ...prev,
-          queryState: 'idle',
-          error: errorMessage,
-        }));
-      }
-    },
-    [axiosPrivate, params.matchId]
-  );
+          });
+        });
+      }, [setMatchContacts, matchId]),
+    });
 
-  const loadMoreMessages = useCallback(async () => {
-    if (
-      !params.matchId ||
-      conversationState.queryState !== 'idle' ||
-      !conversationState.hasMore
-    )
-      return;
-    setConversationState((prev) => ({
-      ...prev,
-      queryState: 'loading-more-messages',
-    }));
+  const {
+    data: messages,
+    setData: setMessages,
+    page: messagesPage,
+    setPage: setMessagesPage,
+    hasMore: hasMoreMessages,
+    fetchFn: loadMoreMessages,
+    isLoading: isFetchingMessages,
+  } = usePaginatedAxiosGet<Message>({
+    url: `/chat/${matchId}/messages`,
+    validationSchema: getChatMessagesSchema,
+    initialData: [],
+    pageSize: PAGE_SIZE,
+    enabled: !!matchId,
+  });
+
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
+  const onlineUsers = useOnlineUsers();
+
+  const axiosPrivate = useAxiosPrivate();
+  const params = useParams();
+  const { socket } = useSocket();
+
+  const sendMessage = async (
+    matchId: string,
+    content: string,
+    receiverId: string
+  ) => {
+    if (!content.trim()) return false;
+    setIsSendingMessage(true);
     try {
-      const response = await axiosPrivate.get(
-        `/chat/conversations/${params.matchId}?page=${conversationState.page + 1}`
-      );
-      setConversationState((prev) => ({
-        ...prev,
-        queryState: 'idle',
-        page: prev.page + 1,
-        hasMore: response.data.data.chatMessages.length >= PAGE_SIZE,
-        messages: [...prev.messages, ...response.data.data.chatMessages],
-      }));
+      const response = await axiosPrivate.post(`/chat/${matchId}/messages`, {
+        matchId: matchId,
+        message: content,
+        receiverId: receiverId,
+      });
+
+      setIsSendingMessage(false);
+      setMessages((prev) => [...prev, response.data.data.chatMessage]);
+
+      return true;
     } catch (error) {
-      const { errorMessage } = handleAxiosError(
-        error,
-        'Error loading more messages'
-      );
-      setConversationState((prev) => ({
-        ...prev,
-        queryState: 'idle',
-        error: errorMessage,
-      }));
+      console.log(error);
+      setIsSendingMessage(false);
+      return false;
     }
-  }, [axiosPrivate, params.matchId, conversationState]);
-
-  const sendMessage = useCallback(
-    async (matchId: string, content: string, receiverId: string) => {
-      if (!content.trim()) return false;
-      setConversationState((prev) => ({
-        ...prev,
-        queryState: 'sending-message',
-      }));
-      try {
-        const response = await axiosPrivate.post(
-          `/chat/conversations/messages`,
-          { message: content, matchId, receiverId }
-        );
-        setConversationState((prev) => ({
-          ...prev,
-          queryState: 'idle',
-          messages: [response.data.data.chatMessage, ...prev.messages],
-        }));
-        return true;
-      } catch (error) {
-        const { errorMessage } = handleAxiosError(
-          error,
-          'Error sending message'
-        );
-        setConversationState((prev) => ({
-          ...prev,
-          queryState: 'idle',
-          error: errorMessage,
-        }));
-        return false;
-      }
-    },
-    [axiosPrivate]
-  );
-
-  useEffect(() => {
-    const abortController = new AbortController();
-    fetchMatchContacts(abortController.signal);
-    return () => abortController.abort();
-  }, [fetchMatchContacts]);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-    fetchConversation(abortController.signal);
-    return () => abortController.abort();
-  }, [fetchConversation]);
+  };
 
   useEffect(() => {
     if (!socket) return;
 
     socket.on('new-message', (data) => {
       if (data.matchId === params.matchId) {
-        setConversationState((prev) => ({
-          ...prev,
-          messages: [data.message, ...prev.messages],
-        }));
+        setMessages((prev) => [...prev, data.message]);
 
         socket.emit('mark-as-read', {
           messageId: data.message.id,
@@ -263,19 +194,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       } else {
         const senderName = data.senderName;
 
-        setMatchContactState((prev) => {
-          return {
-            ...prev,
-            data: prev.data.map((contact) => {
-              if (contact.matchId === data.matchId) {
-                return {
-                  ...contact,
-                  unreadMsgCount: contact.unreadMsgCount + 1,
-                };
-              }
-              return contact;
-            }),
-          };
+        setMatchContacts((prev) => {
+          if (!prev) return prev;
+
+          return prev.map((contact) => {
+            if (contact.matchId === data.matchId) {
+              return {
+                ...contact,
+                unreadMsgCount: contact.unreadMsgCount + 1,
+              };
+            }
+
+            return contact;
+          });
         });
 
         toast.info(`New message from ${senderName}`, {
@@ -288,16 +219,32 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     return () => {
       socket.off('new-message');
     };
-  }, [socket, params.matchId]);
+  }, [socket, params.matchId, setMessages, setMatchContacts]);
 
   return (
     <ChatContext.Provider
       value={{
-        matchContactState,
-        conversationState,
+        matchContactState: {
+          data: matchContacts ?? [],
+          queryState: isFetchingMatchContacts ? 'fetching' : 'idle',
+          error: matchContactsError,
+        },
+        conversationState: {
+          queryState:
+            isFetchingChatUser || isFetchingMessages ? 'fetching' : 'idle',
+          error: '',
+          page: messagesPage,
+          setPage: setMessagesPage,
+          hasMore: hasMoreMessages,
+          chatUser: chatUser,
+          messages: messages,
+          loadMoreMessages: loadMoreMessages,
+        },
         onlineUsers,
-        sendMessage,
-        loadMoreMessages,
+        sendMessage: {
+          isSending: isSendingMessage,
+          fn: sendMessage,
+        },
       }}
     >
       {children}
@@ -312,7 +259,8 @@ export function useChatContext() {
   return context;
 }
 
-function useOnlineUsers({ enable }: { enable: boolean }) {
+// THIS IS USED TO FETCH ONLINE USERS IDS
+function useOnlineUsers() {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   const axiosPrivate = useAxiosPrivate();
@@ -338,8 +286,6 @@ function useOnlineUsers({ enable }: { enable: boolean }) {
   }, [axiosPrivate]);
 
   useEffect(() => {
-    if (!enable) return;
-
     fetchOnlineUsers();
 
     const interval = setInterval(() => {
@@ -347,7 +293,97 @@ function useOnlineUsers({ enable }: { enable: boolean }) {
     }, POLLING_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [fetchOnlineUsers, enable, POLLING_INTERVAL]);
+  }, [fetchOnlineUsers, POLLING_INTERVAL]);
 
   return onlineUsers;
+}
+
+// THIS IS USED TO FETCH MESSAGES.
+function usePaginatedAxiosGet<T>({
+  url,
+  validationSchema,
+  initialData,
+  pageSize,
+  enabled,
+}: {
+  url: string;
+  validationSchema: z.ZodSchema;
+  initialData: T[];
+  pageSize: number;
+  enabled: boolean;
+}) {
+  const axiosInstance = useAxiosPrivate();
+
+  const [data, setData] = React.useState<T[]>(initialData);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [page, setPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(false);
+
+  // Function to reset state when URL changes
+  React.useEffect(() => {
+    setData([]);
+    setError(null);
+    setPage(1);
+    setHasMore(false);
+  }, [url]);
+
+  const fetchData = React.useCallback(
+    async (currentPage: number, abortController?: AbortController) => {
+      setIsLoading(true);
+      setError(null);
+
+      axiosInstance
+        .get<{ message: string; data: T[] }>(url, {
+          params: { page: currentPage, pageSize },
+          signal: abortController?.signal,
+        })
+        .then(({ data }) => {
+          const validatedData = validationSchema.safeParse(data.data);
+          if (validatedData.success) {
+            setData((prev) =>
+              currentPage === 1
+                ? validatedData.data.reverse()
+                : [...validatedData.data.reverse(), ...prev]
+            );
+            setHasMore(validatedData.data.length === pageSize);
+            if (validatedData.data.length === pageSize) {
+              setPage(currentPage + 1);
+            }
+          } else {
+            console.log(validatedData.error);
+            setError("Data didn't match schema");
+          }
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          const { errorMessage } = handleAxiosError(
+            error,
+            `Failed to get ${url} with page ${currentPage}`
+          );
+          setError(errorMessage);
+        })
+        .finally(() => setIsLoading(false));
+    },
+    [url, validationSchema, axiosInstance, pageSize]
+  );
+
+  React.useEffect(() => {
+    if (!enabled) return;
+    const abortController = new AbortController();
+    fetchData(1, abortController);
+    return () => abortController.abort();
+  }, [fetchData, enabled]);
+
+  return {
+    data,
+    setData,
+    isLoading,
+    error,
+    fetchFn: fetchData,
+    page,
+    setPage,
+    hasMore,
+    setHasMore,
+  };
 }

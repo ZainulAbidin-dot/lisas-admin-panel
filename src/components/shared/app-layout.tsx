@@ -4,6 +4,7 @@ import {
   BriefcaseBusinessIcon,
   LayoutDashboardIcon,
   LogOutIcon,
+  MessageSquareTextIcon,
   PanelLeftIcon,
   UserSearchIcon,
 } from 'lucide-react';
@@ -59,11 +60,11 @@ const items = [
     url: '/subscription',
     icon: BriefcaseBusinessIcon,
   },
-  // {
-  //   title: 'Chat',
-  //   url: '/chat',
-  //   icon: MessageSquareTextIcon,
-  // },
+  {
+    title: 'Chat',
+    url: '/chat',
+    icon: MessageSquareTextIcon,
+  },
 ];
 
 export function AppSidebar() {
