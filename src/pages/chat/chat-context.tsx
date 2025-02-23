@@ -15,8 +15,10 @@ import { useSocket } from '@/context/socket-context';
 import { useAxiosGet } from '@/hooks/use-axios-get';
 import { handleAxiosError } from '@/lib/handle-api-error';
 
-const getMatchContactsSchema = z
-  .object({
+const getMatchContactsSchema = z.object({
+  message: z.string(),
+  statusCode: z.number(),
+  data: z.object({
     matchContacts: z.array(
       z.object({
         matchId: z.string(),
@@ -27,19 +29,21 @@ const getMatchContactsSchema = z
         profileImage: z.string().optional(),
       })
     ),
-  })
-  .transform((data) => data.matchContacts);
+  }),
+});
 
-const getChatUser = z
-  .object({
+const getChatUser = z.object({
+  message: z.string(),
+  statusCode: z.number(),
+  data: z.object({
     user: z.object({
       matchId: z.string(),
       userId: z.string(),
       userName: z.string(),
       profileImage: z.string().optional(),
     }),
-  })
-  .transform((data) => data.user);
+  }),
+});
 
 const getChatMessagesSchema = z.array(
   z.object({
@@ -50,9 +54,13 @@ const getChatMessagesSchema = z.array(
   })
 );
 
-export type MatchContact = z.infer<typeof getMatchContactsSchema>[number];
+type TGetMatchContact = z.infer<typeof getMatchContactsSchema>;
 
-export type ChatUser = z.infer<typeof getChatUser>;
+export type MatchContact = TGetMatchContact['data']['matchContacts'][number];
+
+type TGetChatUser = z.infer<typeof getChatUser>;
+
+export type ChatUser = TGetChatUser['data']['user'];
 
 export type Message = z.infer<typeof getChatMessagesSchema>[number];
 
@@ -102,14 +110,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setData: setMatchContacts,
     isLoading: isFetchingMatchContacts,
     error: matchContactsError,
-  } = useAxiosGet<MatchContact[]>({
+  } = useAxiosGet<TGetMatchContact>({
     url: '/chat/match-contacts',
-    initialData: [],
+    initialData: null,
     validationSchema: getMatchContactsSchema,
   });
 
   const { data: chatUser, isLoading: isFetchingChatUser } =
-    useAxiosGet<ChatUser>({
+    useAxiosGet<TGetChatUser>({
       url: `/chat/${matchId}/user`,
       initialData: null,
       validationSchema: getChatUser,
@@ -119,15 +127,20 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setMatchContacts((prev) => {
           if (!prev) return prev;
 
-          return prev.map((contact) => {
-            if (contact.matchId === matchId) {
-              return {
-                ...contact,
-                unreadMsgCount: 0,
-              };
-            }
-            return contact;
-          });
+          return {
+            ...prev,
+            data: {
+              matchContacts: prev.data.matchContacts.map((contact) => {
+                if (contact.matchId === matchId) {
+                  return {
+                    ...contact,
+                    unreadMsgCount: 0,
+                  };
+                }
+                return contact;
+              }),
+            },
+          };
         });
       }, [setMatchContacts, matchId]),
     });
@@ -197,16 +210,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setMatchContacts((prev) => {
           if (!prev) return prev;
 
-          return prev.map((contact) => {
-            if (contact.matchId === data.matchId) {
-              return {
-                ...contact,
-                unreadMsgCount: contact.unreadMsgCount + 1,
-              };
-            }
+          return {
+            ...prev,
+            data: {
+              matchContacts: prev.data.matchContacts.map((contact) => {
+                if (contact.matchId === data.matchId) {
+                  return {
+                    ...contact,
+                    unreadMsgCount: contact.unreadMsgCount + 1,
+                  };
+                }
 
-            return contact;
-          });
+                return contact;
+              }),
+            },
+          };
         });
 
         toast.info(`New message from ${senderName}`, {
@@ -225,7 +243,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     <ChatContext.Provider
       value={{
         matchContactState: {
-          data: matchContacts ?? [],
+          data: matchContacts?.data ? matchContacts.data.matchContacts : [],
           queryState: isFetchingMatchContacts ? 'fetching' : 'idle',
           error: matchContactsError,
         },
@@ -236,7 +254,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           page: messagesPage,
           setPage: setMessagesPage,
           hasMore: hasMoreMessages,
-          chatUser: chatUser,
+          chatUser: chatUser?.data ? chatUser.data.user : null,
           messages: messages,
           loadMoreMessages: loadMoreMessages,
         },

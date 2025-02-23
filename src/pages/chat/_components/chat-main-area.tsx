@@ -78,7 +78,7 @@ function ChatHeader() {
             className={cn(
               'flex items-center gap-1 font-semibold',
               'after:h-2 after:w-2 after:rounded-full after:bg-primary',
-              isOnline ? 'after:bg-green-500' : 'after:bg-red-500'
+              isOnline ? 'after:bg-green-500' : ''
             )}
           >
             {userName}
