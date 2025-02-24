@@ -1,4 +1,3 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { axiosInstance } from '@/api/axios-instance';
@@ -6,9 +5,7 @@ import { handleAxiosError } from '@/lib/handle-api-error';
 import { useAuthStore } from '@/store/auth-store';
 
 export const useRefreshToken = () => {
-  const { setToken, clearToken } = useAuthStore();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { setToken } = useAuthStore();
 
   const refresh = async (controller?: AbortController) => {
     try {
@@ -25,14 +22,7 @@ export const useRefreshToken = () => {
     } catch (error) {
       const { errorMessage } = handleAxiosError(error);
 
-      toast.error(errorMessage);
-
-      clearToken();
-
-      navigate('/auth/login', {
-        replace: true,
-        state: { from: location },
-      });
+      console.log(errorMessage);
     }
   };
   return refresh;
