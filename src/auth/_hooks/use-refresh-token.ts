@@ -1,5 +1,3 @@
-import { toast } from 'sonner';
-
 import { axiosInstance } from '@/api/axios-instance';
 import { handleAxiosError } from '@/lib/handle-api-error';
 import { useAuthStore } from '@/store/auth-store';
