@@ -1,27 +1,45 @@
-import { useState } from 'react';
+"use client"
 
-import { Loader2Icon, Trash2Icon } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { z } from 'zod';
+import * as React from "react"
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
-import { PaginationBar } from '@/components/composed/pagination-bar';
-import { LoadingState } from '@/components/loading-state';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { useAxiosDelete } from '@/hooks/use-axios-delete';
-import { useAxiosGet } from '@/hooks/use-axios-get';
-import { metadataSchema } from '@/lib/meta-data-schema';
-import { getInitials } from '@/lib/utils';
+} from "@/components/ui/table"
+import { useAxiosGet } from "@/hooks/use-axios-get"
+import { useAxiosDelete } from "@/hooks/use-axios-delete"
+import { z } from "zod"
+import { LoadingState } from "@/components/loading-state"
+import { Link } from "react-router-dom"
 
 const usersSchema = z.object({
   data: z.array(
@@ -36,138 +54,182 @@ const usersSchema = z.object({
   ),
   statusCode: z.number(),
   message: z.string(),
-  metadata: metadataSchema,
-});
+})
 
-type TUserListSchema = z.infer<typeof usersSchema>;
+type User = z.infer<typeof usersSchema>["data"][number]
 
 export function UserList() {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const pageSize = 10
 
   const {
     isLoading,
     data: usersState,
     setData,
-  } = useAxiosGet<TUserListSchema>({
-    url: `/users?page=${currentPage}&page-size=10`,
+  } = useAxiosGet<z.infer<typeof usersSchema>>({
+    url: `/users?page=${currentPage}&page-size=${pageSize}`,
     validationSchema: usersSchema,
     initialData: null,
-  });
+  })
 
-  const handleDeleteSucess = (id: string) => {
+  const handleDeleteSuccess = (id: string) => {
     setData((prev) => {
-      if (!prev) {
-        return prev;
-      }
-      return {
-        ...prev,
-        data: prev.data.filter((user) => user.id !== id),
-      };
-    });
-  };
-
-  if (isLoading) {
-    return <LoadingState />;
+      if (!prev) return prev
+      return { ...prev, data: prev.data.filter((user) => user.id !== id) }
+    })
   }
 
-  if (!usersState || usersState.data.length === 0) {
-    return <div className="p-4 text-center text-gray-600">No users found.</div>;
-  }
+  const columns: ColumnDef<User>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => row.getValue("name"),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: "Phone",
+      cell: ({ row }) => row.getValue("phoneNumber"),
+    },
+    {
+      accessorKey: "address",
+      header: "Billing Address",
+      cell: ({ row }) => row.getValue("address"),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem asChild>
+              <Link to={`/user-detail/${row.original.id}`}>View</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDeleteSuccess(row.original.id)}>
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ]
+
+  const table = useReactTable({
+    data: usersState?.data || [],
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: { sorting, columnFilters, columnVisibility, rowSelection },
+  })
+
+  if (isLoading) return <LoadingState />
 
   return (
-    <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-bold">Users</h1>
-      <Table>
-        <TableCaption>A list of registered users.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[80px]">S no.</TableHead>
-            <TableHead>Profile Image</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Billing Address</TableHead>
-            <TableHead className="w-[150px] text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {usersState.data.map((user, index) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">
-                {(usersState.metadata.currentPage - 1) *
-                  usersState.metadata.pageSize +
-                  index +
-                  1}
-              </TableCell>
-              <TableCell>
-                <Avatar>
-                  <AvatarImage src={user.profileImage} />
-                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                </Avatar>
-              </TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.phoneNumber}</TableCell>
-              <TableCell>{user.address}</TableCell>
-              <TableCell className="flex gap-2">
-                <Button size="sm" variant="outline" asChild>
-                  <Link to={`/user-detail/${user.id}`}>View</Link>
-                </Button>
-                <DeleteUserButton
-                  id={user.id}
-                  onDeleteSuccess={() => handleDeleteSucess(user.id)}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={7}>
-              <PaginationBar
-                metadata={usersState.metadata}
-                onPageChange={setCurrentPage}
-              />
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
+    <div className="w-full p-2">
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter by name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
+          className="max-w-sm"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columns <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table.getAllColumns().map((column) => (
+              <DropdownMenuCheckboxItem
+                key={column.id}
+                className="capitalize"
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+              >
+                {column.id}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>{row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}</TableRow>
+              ))
+            ) : (
+              <TableRow><TableCell colSpan={columns.length} className="h-24 text-center">No users found.</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex justify-between items-center py-4">
+        <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
+          <ChevronLeft /> Previous
+        </Button>
+        <span>Page {currentPage}</span>
+        <Button variant="outline" disabled={!usersState?.data || usersState.data.length < pageSize} onClick={() => setCurrentPage((prev) => prev + 1)}>
+          Next <ChevronRight />
+        </Button>
+      </div>
     </div>
-  );
-}
-
-function DeleteUserButton({
-  id,
-  onDeleteSuccess,
-}: {
-  id: string;
-  onDeleteSuccess: () => void;
-}) {
-  const { isDeleting, deleteFn } = useAxiosDelete({
-    url: `/users/${id}`,
-    showSnackbarOnError: true,
-  });
-
-  const handleDelete = async () => {
-    const success = await deleteFn();
-    if (success) {
-      onDeleteSuccess();
-    }
-  };
-
-  return (
-    <Button
-      variant="destructive"
-      size="sm"
-      onClick={handleDelete}
-      disabled={isDeleting}
-    >
-      {isDeleting ? (
-        <Loader2Icon className="h-4 w-4 animate-spin" />
-      ) : (
-        <Trash2Icon className="h-4 w-4" />
-      )}
-      <span>Delete</span>
-    </Button>
-  );
+  )
 }

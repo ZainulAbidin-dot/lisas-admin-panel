@@ -9,6 +9,7 @@ import { UpdateAddress } from './update-address';
 import { UpdateHobbies } from './update-hobbies';
 import { UpdatePersonalInfo } from './update-personal-info';
 import { UpdateProfileInformation } from './update-profile-information';
+import ToggleButton from '@/components/toggle-button';
 
 const userDetailSchema = z.object({
   personalData: z.object({
@@ -89,10 +90,27 @@ export function UserDetail() {
   const user = data.data;
 
   return (
-    <div className="w-full flex-grow">
+    <div className="w-full flex-grow bg-gray-100">
       <div className="mx-auto w-full max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-center"></div>
+        <div className="flex flex-col gap-6 bg-white p-6 rounded-lg shadow-lg">
+          <div className="flex items-center justify-center mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">
+              {user.personalData.firstName} {user.personalData.lastName}
+            </h1>
+          </div>
+
+          <div className="flex m-auto items-center gap-8">
+            <button
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              onClick={() => {
+                // Add delete functionality here
+                console.log('Delete user');
+              }}
+            >
+              Delete
+            </button>
+            <ToggleButton data={user.profileData.idVerification} />
+          </div>
 
           <ProfilePictureManager initialImages={user.profilePics} />
 
