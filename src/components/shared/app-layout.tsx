@@ -3,14 +3,12 @@ import React from 'react';
 import {
   BriefcaseBusinessIcon,
   LayoutDashboardIcon,
-  LogOutIcon,
   MessageSquareTextIcon,
   PanelLeftIcon,
   UserSearchIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { useLogout } from '@/auth/_hooks/use-logout';
 import {
   Sidebar,
   SidebarContent,
@@ -69,7 +67,6 @@ const items = [
 
 export function AppSidebar() {
   const { toggleSidebar, open, isMobile } = useSidebar();
-  const logout = useLogout();
   return (
     <Sidebar collapsible="offcanvas" variant="sidebar">
       <SidebarHeader className="h-20 bg-primary text-primary-foreground">
@@ -100,13 +97,6 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout}>
-                  <LogOutIcon />
-                  <span>Logout</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -25,6 +25,7 @@ const getMatchContactsSchema = z.object({
         userId: z.string(),
         userRole: z.enum(['user', 'admin']),
         userName: z.string(),
+        isVerified: z.boolean(),
         unreadMsgCount: z.number(),
         profileImage: z.string().optional(),
       })
@@ -41,6 +42,7 @@ const getChatUser = z.object({
       userId: z.string(),
       userName: z.string(),
       profileImage: z.string().optional(),
+      isVerified: z.boolean(),
     }),
   }),
 });

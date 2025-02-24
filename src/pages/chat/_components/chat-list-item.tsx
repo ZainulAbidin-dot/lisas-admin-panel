@@ -1,3 +1,4 @@
+import { VerifiedIcon } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,7 +27,6 @@ export function ChatListItem({
         )}
       >
         <div className="flex items-center gap-2">
-          {/* Profile Image or Fallback */}
           <div className="relative">
             <Avatar className="h-10 w-10 rounded-full">
               <AvatarImage src={contact.profileImage} />
@@ -37,8 +37,11 @@ export function ChatListItem({
             )}
           </div>
 
-          <div>
+          <div className="flex items-center gap-2">
             <p className="font-semibold text-gray-900">{contact.userName}</p>
+            {contact.isVerified ? (
+              <VerifiedIcon fill="#0097fc" className="size-4" />
+            ) : null}
           </div>
         </div>
 

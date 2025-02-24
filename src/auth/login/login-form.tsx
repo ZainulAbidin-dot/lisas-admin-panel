@@ -1,10 +1,11 @@
 import React from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 import { ButtonWithLoader } from '@/components/composed/button-with-loader';
+import { PasswordInput } from '@/components/composed/password-input';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
@@ -17,15 +18,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-import { loginSchema } from './login-schema';
+import { TLoginSchema, loginSchema } from './login-schema';
 import { useLogin } from './use-login';
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = React.useState(false);
   const [remember, setRemember] = useLocalStorage('remember', false);
   const { login } = useLogin();
 
-  const form = useForm({
+  const form = useForm<TLoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -41,7 +41,7 @@ export function LoginForm() {
 
   return (
     <React.Fragment>
-      <h1 className="text-4xl font-bold text-gray-900">Admin Panel</h1>
+      <h1 className="text-4xl font-bold text-gray-900">Lisa's Friend</h1>
       <p className="mt-4 text-xl font-semibold text-gray-600">Welcome back.</p>
       <Form {...form}>
         <form className="my-4" onSubmit={form.handleSubmit(login)}>
@@ -63,33 +63,14 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <div className="relative">
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        className="mt-1 bg-transparent pr-10"
-                      />
-                    </FormControl>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-500"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
+
+            <PasswordInput<TLoginSchema>
+              displayName="Password"
+              nameInSchema="password"
+              placeholder="Enter your password"
+              showResetPassword={true}
             />
+
             <FormField
               control={form.control}
               name="remember"
@@ -110,7 +91,7 @@ export function LoginForm() {
             />
             <ButtonWithLoader
               variant="default"
-              className="mt-6 w-full items-center justify-center gap-2"
+              className="mt-6 w-full items-center justify-center gap-2 hover:bg-[hsl(var(--primary-hover))]"
               type="submit"
               disabled={isSubmitting || isError}
               isLoading={isSubmitting}

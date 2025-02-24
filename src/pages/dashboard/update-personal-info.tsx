@@ -56,7 +56,7 @@ export function UpdatePersonalInfo({
             <TextInputWithLabel<TUpdatePersonalInfo>
               nameInSchema="lastName"
               displayName="Last Name"
-              placeholder="Enter ast name"
+              placeholder="Enter last name"
               type="text"
             />
 

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 
-import { TUpdateHobbies, useUpdateHobbies } from './_hooks/use-update-hobbies';
+import { TUpdateHobbies, useUpdateHobbies } from '../_hooks/use-update-hobbies';
 
 const hobbiesList = [
   { label: 'Reading', value: 'reading' },

@@ -1,6 +1,5 @@
-"use client"
+import { useState } from 'react';
 
-import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,11 +11,21 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+} from '@tanstack/react-table';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
+import { LoadingState } from '@/components/loading-state';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -25,8 +34,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -34,12 +43,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { useAxiosGet } from "@/hooks/use-axios-get"
-import { useAxiosDelete } from "@/hooks/use-axios-delete"
-import { z } from "zod"
-import { LoadingState } from "@/components/loading-state"
-import { Link } from "react-router-dom"
+} from '@/components/ui/table';
+import { useAxiosGet } from '@/hooks/use-axios-get';
+import { handleAxiosError } from '@/lib/handle-api-error';
+import { metadataSchema } from '@/lib/meta-data-schema';
 
 const usersSchema = z.object({
   data: z.array(
@@ -54,17 +61,20 @@ const usersSchema = z.object({
   ),
   statusCode: z.number(),
   message: z.string(),
-})
+  metadata: metadataSchema,
+});
 
-type User = z.infer<typeof usersSchema>["data"][number]
+type User = z.infer<typeof usersSchema>['data'][number];
 
 export function UserList() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const pageSize = 10
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const axios = useAxiosPrivate();
 
   const {
     isLoading,
@@ -74,23 +84,31 @@ export function UserList() {
     url: `/users?page=${currentPage}&page-size=${pageSize}`,
     validationSchema: usersSchema,
     initialData: null,
-  })
+  });
 
-  const handleDeleteSuccess = (id: string) => {
-    setData((prev) => {
-      if (!prev) return prev
-      return { ...prev, data: prev.data.filter((user) => user.id !== id) }
-    })
-  }
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`/users/${id}`);
+
+      setData((prev) => {
+        if (!prev) return prev;
+        return { ...prev, data: prev.data.filter((user) => user.id !== id) };
+      });
+    } catch (error) {
+      const { errorMessage } = handleAxiosError(error);
+
+      toast.error(errorMessage);
+    }
+  };
 
   const columns: ColumnDef<User>[] = [
     {
-      id: "select",
+      id: 'select',
       header: ({ table }) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -107,27 +125,29 @@ export function UserList() {
       enableHiding: false,
     },
     {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => row.getValue("name"),
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }) => row.getValue('name'),
     },
     {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+      accessorKey: 'email',
+      header: 'Email',
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue('email')}</div>
+      ),
     },
     {
-      accessorKey: "phoneNumber",
-      header: "Phone",
-      cell: ({ row }) => row.getValue("phoneNumber"),
+      accessorKey: 'phoneNumber',
+      header: 'Phone',
+      cell: ({ row }) => row.getValue('phoneNumber'),
     },
     {
-      accessorKey: "address",
-      header: "Billing Address",
-      cell: ({ row }) => row.getValue("address"),
+      accessorKey: 'address',
+      header: 'Billing Address',
+      cell: ({ row }) => row.getValue('address'),
     },
     {
-      id: "actions",
+      id: 'actions',
       enableHiding: false,
       cell: ({ row }) => (
         <DropdownMenu>
@@ -143,14 +163,14 @@ export function UserList() {
               <Link to={`/user-detail/${row.original.id}`}>View</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleDeleteSuccess(row.original.id)}>
+            <DropdownMenuItem onClick={() => handleDelete(row.original.id)}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
-  ]
+  ];
 
   const table = useReactTable({
     data: usersState?.data || [],
@@ -164,18 +184,21 @@ export function UserList() {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: { sorting, columnFilters, columnVisibility, rowSelection },
-  })
+  });
 
-  if (isLoading) return <LoadingState />
+  if (isLoading) return <LoadingState />;
 
   return (
-    <div className="w-full p-2">
+    <div className="w-full px-2 py-6 sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-bold">Users</h1>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
-          className="max-w-sm"
+          value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+          onChange={(event) =>
+            table.getColumn('name')?.setFilterValue(event.target.value)
+          }
+          className="block max-w-sm"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -203,7 +226,12 @@ export function UserList() {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
                 ))}
               </TableRow>
             ))}
@@ -211,25 +239,47 @@ export function UserList() {
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>{row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                ))}</TableRow>
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))
             ) : (
-              <TableRow><TableCell colSpan={columns.length} className="h-24 text-center">No users found.</TableCell></TableRow>
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No users found.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex justify-between items-center py-4">
-        <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}>
+      <div className="flex items-center justify-between py-4">
+        <Button
+          variant="outline"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        >
           <ChevronLeft /> Previous
         </Button>
         <span>Page {currentPage}</span>
-        <Button variant="outline" disabled={!usersState?.data || usersState.data.length < pageSize} onClick={() => setCurrentPage((prev) => prev + 1)}>
+        <Button
+          variant="outline"
+          disabled={!usersState || !usersState.metadata.hasNextPage}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+        >
           Next <ChevronRight />
         </Button>
       </div>
     </div>
-  )
+  );
 }

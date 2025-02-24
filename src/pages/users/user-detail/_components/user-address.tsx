@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import {
   type TUpdateAddress,
   updateAddressSchema,
-} from './_hooks/use-update-address';
+} from '../_hooks/use-update-address';
 
 export function UpdateAddress({ address }: { address: TUpdateAddress }) {
   const form = useForm({

@@ -11,7 +11,7 @@ import { ChatSection } from './pages/chat/_components/chat-main-area';
 import { NoChatSelected } from './pages/chat/_components/no-chat-selected';
 import { DashboardPage } from './pages/dashboard/dashboard-page';
 import { SubscriptionList } from './pages/subscription-list/subscription-list';
-import { UserDetail } from './pages/users/user-detail';
+import { UserDetail } from './pages/users/user-detail/user-detail';
 import { UserList } from './pages/users/user-list';
 
 export function App() {
@@ -22,26 +22,32 @@ export function App() {
 
         <Route element={<PersistLogin />}>
           <Route element={<SocketProvider />}>
-            <Route element={<RequireAuth requireSubscription={false} />}>
-              <Route path="/subscription" element={<SubscriptionList />} />
+            <Route element={<RequireAuth />}>
               <Route path="/" element={<UserList />} />
+
               <Route path="/users" element={<UserList />} />
+
               <Route path="/user-detail/:id" element={<UserDetail />} />
+
+              <Route path="/subscription" element={<SubscriptionList />} />
+
+              <Route path="/chat" element={<ChatLayout />}>
+                <Route index element={<NoChatSelected />} />
+                <Route path=":matchId" element={<ChatSection />} />
+              </Route>
             </Route>
 
-            <Route element={<RequireAuth requireSubscription={false} />}>
+            <Route element={<RequireAuth />}>
               <Route path="/dashboard" element={<DashboardPage />} />
             </Route>
 
-            <Route element={<RequireAuth requireSubscription={false} />}>
+            <Route element={<RequireAuth />}>
               <Route path="/chat" element={<ChatLayout />}>
                 <Route index element={<NoChatSelected />} />
                 <Route path=":matchId" element={<ChatSection />} />
               </Route>
             </Route>
           </Route>
-
-          <Route element={<RequireAuth requireSubscription={false} />}></Route>
         </Route>
       </Routes>
       <Toaster />

@@ -66,8 +66,8 @@ export function SubscriptionList() {
   }
 
   return (
-    <div className="space-y-4 p-4">
-      <h1 className="text-2xl font-bold">Subscriptions</h1>
+    <div className="px-2 py-6 sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-bold">Subscriptions</h1>
       <Table>
         <TableCaption>List of subscriptions.</TableCaption>
         <TableHeader>

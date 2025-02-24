@@ -1,7 +1,13 @@
 import React, { useRef, useState } from 'react';
 
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
-import { ArrowLeftIcon, Loader2Icon, PhoneIcon, SendIcon } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  Loader2Icon,
+  PhoneIcon,
+  SendIcon,
+  VerifiedIcon,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { LoadingState } from '@/components/loading-state';
@@ -56,7 +62,7 @@ function ChatHeader() {
 
   const { conversationState, onlineUsers } = useChatContext();
 
-  const { userName, profileImage } = conversationState.chatUser!;
+  const { userName, profileImage, isVerified } = conversationState.chatUser!;
 
   const isOnline = onlineUsers.has(conversationState.chatUser!.userId);
 
@@ -73,16 +79,21 @@ function ChatHeader() {
           <AvatarImage src={profileImage} />
           <AvatarFallback>{getInitials(userName)}</AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex items-center gap-2">
           <p
             className={cn(
               'flex items-center gap-1 font-semibold',
-              'after:h-2 after:w-2 after:rounded-full after:bg-primary',
-              isOnline ? 'after:bg-green-500' : ''
+
+              isOnline
+                ? 'after:h-2 after:w-2 after:rounded-full after:bg-green-500'
+                : ''
             )}
           >
             {userName}
           </p>
+          {isVerified ? (
+            <VerifiedIcon fill="#0097fc" className="size-4" />
+          ) : null}
         </div>
       </div>
       <Button variant="ghost" size="icon">
@@ -169,7 +180,7 @@ function ChatMainArea() {
   return (
     <div
       className={cn(
-        'h-full -scale-y-100 overflow-y-scroll px-4',
+        'h-full -scale-y-100 overflow-y-scroll px-4 py-2',
         'chat-scrolling-container'
       )}
       ref={messageContainerRef}

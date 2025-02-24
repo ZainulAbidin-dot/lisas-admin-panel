@@ -11,9 +11,6 @@ export const useLogout = () => {
       .post('/auth/logout', {
         withCredentials: true, // To allow cookies to be sent with the request
       })
-      .then((response) => {
-        console.log('Logout Response: ', response.data);
-      })
       .catch((err) => {
         console.log('Logout Error: ', err);
       });

@@ -3,15 +3,13 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useRefreshToken } from '@/auth/_hooks/use-refresh-token';
-// import { useLocalStorage } from '@/hooks/use-local-storage';
+import { LoadingState } from '@/components/loading-state';
 import { useAuthStore } from '@/store/auth-store';
 
 const PersistLogin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const refresh = useRefreshToken();
   const { token } = useAuthStore();
-  // const [remember] = useLocalStorage('remember', false);
-  const remember = true;
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -33,9 +31,8 @@ const PersistLogin = () => {
       }
     };
 
-    // persist added here AFTER tutorial video
     // Avoids unwanted call to verifyRefreshToken
-    if (!token && remember) {
+    if (!token) {
       verifyRefreshToken();
     } else {
       setIsLoading(false);
@@ -45,9 +42,9 @@ const PersistLogin = () => {
       abortController.abort();
       isMounted = false;
     };
-  }, [remember, refresh, token]);
+  }, [refresh, token]);
 
-  return !remember ? <Outlet /> : isLoading ? <p>Loading...</p> : <Outlet />;
+  return isLoading ? <LoadingState /> : <Outlet />;
 };
 
 export default PersistLogin;

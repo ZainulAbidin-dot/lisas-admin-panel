@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import {
   type TUpdatePersonalInfo,
   updatePersonalInfoSchema,
-} from './_hooks/use-update-personal-information';
+} from '../_hooks/use-update-personal-information';
 
 export function UpdatePersonalInfo({
   personalInfo,

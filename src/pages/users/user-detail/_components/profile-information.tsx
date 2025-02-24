@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SaveIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -14,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
@@ -23,14 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
 import {
   TUpdateUserProfile,
   updateUserProfileSchema,
-  useUpdateProfileInformation,
-} from './_hooks/use-update-profile-information';
+} from '../_hooks/use-update-profile-information';
 
 export function UpdateProfileInformation({
   userProfile,
@@ -45,33 +41,9 @@ export function UpdateProfileInformation({
     },
   });
 
-  const [idVerificationPreview, setIdVerificationPreview] = useState<string>(
+  const [idVerificationPreview] = useState<string>(
     userProfile.idVerification || ''
   );
-
-  const { updateProfileInformation, isSubmitting } =
-    useUpdateProfileInformation();
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      alert('Only JPG, PNG, and WEBP files are allowed.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (reader.result && typeof reader.result === 'string') {
-        console.log('Upading...');
-        form.setValue('idVerification', reader.result);
-        setIdVerificationPreview(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <Card className="bg-transparent p-6 shadow-sm">
@@ -79,7 +51,9 @@ export function UpdateProfileInformation({
       <p className="text-sm text-gray-500">Tell us more about yourself.</p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(updateProfileInformation)}>
+        <form
+          onSubmit={(e) => e.preventDefault() /** Prevent form submission */}
+        >
           <CardContent className="mt-4 grid grid-cols-1 gap-4 px-0 md:grid-cols-2">
             {/* Meeting Preference */}
             <FormField
@@ -90,9 +64,8 @@ export function UpdateProfileInformation({
                   <FormLabel>Preferred Communication</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex gap-4"
+                      className="pointer-events-none flex gap-4"
                     >
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
@@ -128,9 +101,8 @@ export function UpdateProfileInformation({
                   <FormLabel>Do you feel lonely?</FormLabel>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex gap-4"
+                      className="pointer-events-none flex gap-4"
                     >
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
@@ -158,12 +130,9 @@ export function UpdateProfileInformation({
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
                   <FormLabel>Age</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                  <Select defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="w-full bg-transparent">
+                      <SelectTrigger className="pointer-events-none w-full bg-transparent">
                         <SelectValue placeholder="Select age" />
                       </SelectTrigger>
                     </FormControl>
@@ -190,11 +159,7 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>Describe Yourself</FormLabel>
                   <FormControl>
-                    <Textarea
-                      className="bg-transparent"
-                      placeholder="A little about yourself"
-                      {...field}
-                    />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -209,11 +174,7 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>Topics You Like to Discuss</FormLabel>
                   <FormControl>
-                    <Textarea
-                      className="bg-transparent"
-                      placeholder="Your favorite topics"
-                      {...field}
-                    />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,59 +189,46 @@ export function UpdateProfileInformation({
                 <FormItem className="md:col-span-2">
                   <FormLabel>What Do You Expect from a Friend?</FormLabel>
                   <FormControl>
-                    <Textarea
-                      className="bg-transparent"
-                      placeholder="Your expectations"
-                      {...field}
-                    />
+                    <Textarea className="bg-transparent" readOnly {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* ID Verification */}
-            <FormField
-              control={form.control}
-              name="idVerification"
-              render={() => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>ID Verification</FormLabel>
-                  <Input
-                    className="bg-transparent"
-                    type="file"
-                    accept="image/png, image/jpeg, image/jpg"
-                    onChange={handleImageUpload}
-                  />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2 md:col-span-2">
+              <p className="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                ID Verification
+              </p>
+              {idVerificationPreview ? (
+                <div className="flex gap-2">
+                  <IdVerificationModal url={idVerificationPreview} />
+                </div>
+              ) : null}
+            </div>
           </CardContent>
-
-          {/* Preview Image For ID Verification */}
-          <div className="mb-6 mt-2">
-            {idVerificationPreview && (
-              <div className="h-64 w-full overflow-hidden rounded-lg bg-gray-100">
-                <img
-                  src={idVerificationPreview}
-                  alt="Profile Image"
-                  className="h-full w-full object-contain"
-                />
-              </div>
-            )}
-          </div>
-
-          <Separator />
-
-          <div className="mt-4 flex justify-end">
-            <Button type="submit" className="" disabled={isSubmitting}>
-              <SaveIcon />
-              Save
-            </Button>
-          </div>
         </form>
       </Form>
     </Card>
+  );
+}
+
+function IdVerificationModal({ url }: { url: string }) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <img src={url} alt="Profile" className="h-48 rounded-lg object-cover" />
+      </DialogTrigger>
+      <DialogContent>
+        <div className="grid h-full w-full pt-4">
+          <img
+            src={url}
+            alt="Profile"
+            className="h-full w-full rounded-lg object-cover"
+            loading="lazy"
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

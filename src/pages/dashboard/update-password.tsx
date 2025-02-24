@@ -1,20 +1,11 @@
-import { InputHTMLAttributes, useState } from 'react';
-
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, SaveIcon } from 'lucide-react';
-import { useForm, useFormContext } from 'react-hook-form';
+import { SaveIcon } from 'lucide-react';
+import { useForm } from 'react-hook-form';
 
+import { PasswordInput } from '@/components/composed/password-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 
 import {
@@ -76,51 +67,5 @@ export function UpdatePassword() {
         </form>
       </Form>
     </Card>
-  );
-}
-
-function PasswordInput<S>({
-  displayName,
-  nameInSchema,
-  placeholder,
-  ...props
-}: {
-  displayName: string;
-  nameInSchema: keyof S & string;
-  placeholder: string;
-} & InputHTMLAttributes<HTMLInputElement>) {
-  const [visible, setVisible] = useState(false);
-  const form = useFormContext();
-
-  return (
-    <FormField
-      control={form.control}
-      name={nameInSchema}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel htmlFor={nameInSchema}>{displayName}</FormLabel>
-          <FormControl>
-            <div className="relative">
-              <Input
-                type={visible ? 'text' : 'password'}
-                className="bg-transparent pr-10"
-                id={nameInSchema}
-                placeholder={placeholder}
-                {...field}
-                {...props}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-2 flex items-center"
-                onClick={() => setVisible(!visible)}
-              >
-                {visible ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
   );
 }

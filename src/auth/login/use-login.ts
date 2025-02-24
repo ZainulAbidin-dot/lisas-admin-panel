@@ -1,8 +1,8 @@
-import { AxiosError } from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { axiosInstance } from '@/api/axios-instance';
+import { handleAxiosError } from '@/lib/handle-api-error';
 import { useAuthStore } from '@/store/auth-store';
 
 import { type TLoginSchema } from './login-schema';
@@ -21,16 +21,12 @@ export const useLogin = () => {
         },
         withCredentials: true, // To allow cookies to be sent with the request
       });
-      console.log('Login Response: ', response.data);
+
       setToken(response.data.data.accessToken);
 
       navigate(from);
     } catch (error) {
-      console.error('Login Error: ', error);
-      const errorMessage =
-        error instanceof AxiosError
-          ? error?.response?.data?.message || error?.message || 'Unknown Error'
-          : 'Unknown Error';
+      const { errorMessage } = handleAxiosError(error, 'Failed to login');
       toast.error(errorMessage);
     }
   };

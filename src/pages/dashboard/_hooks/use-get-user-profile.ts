@@ -1,115 +1,89 @@
-import React from 'react';
+import { z } from 'zod';
 
-import { AxiosError } from 'axios';
-import { toast } from 'sonner';
+import { useAxiosGet } from '@/hooks/use-axios-get';
 
-import useAxiosPrivate from '@/auth/_hooks/use-axios-private';
+const personalDataSchema = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  phoneNumber: z.string(),
+});
 
-type PersonalData = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-};
+const profileDataSchema = z
+  .object({
+    meetingPreference: z.enum(['phone', 'penpal', 'chat']),
+    feelsLonely: z.enum(['yes', 'no']),
+    chatFrequency: z.enum([
+      'multiple-times-a-week',
+      'once-a-week',
+      'once-a-month',
+      'once-every-three-months',
+    ]),
+    age: z.enum([
+      'under-18',
+      '18-24',
+      '25-34',
+      '35-44',
+      '45-54',
+      '55-64',
+      '65-or-older',
+    ]),
+    selfDescription: z.string(),
+    discussionTopics: z.string(),
+    friendExpectations: z.string(),
+    idVerification: z.string().nullable(),
+    isVerified: z.boolean(),
+  })
+  .transform((data) => ({
+    ...data,
+    idVerification: data.idVerification ? data.idVerification : undefined,
+  }));
 
-type ProfileData = {
-  meetingPreference: 'phone' | 'penpal' | 'chat';
-  feelsLonely: 'yes' | 'no';
-  chatFrequency:
-    | 'multiple-times-a-week'
-    | 'once-a-week'
-    | 'once-a-month'
-    | 'once-every-three-months';
-  age:
-    | 'under-18'
-    | '18-24'
-    | '25-34'
-    | '35-44'
-    | '45-54'
-    | '55-64'
-    | '65-or-older';
-  selfDescription: string;
-  discussionTopics: string;
-  friendExpectations: string;
-  idVerification?: string | undefined;
-};
+const profilePicSchema = z.object({
+  id: z.string(),
+  url: z.string(),
+});
 
-type ProfilePic = {
-  id: string;
-  url: string;
-};
+const addressSchema = z.object({
+  address: z.string(),
+  city: z.string(),
+  country: z.string(),
+  zipCode: z.string(),
+});
 
-type Address = {
-  address: string;
-  city: string;
-  country: string;
-  zipCode: string;
-};
+const hobbiesSchema = z.any().transform((value) => {
+  if (typeof value === 'string') {
+    return JSON.parse(value) as string[];
+  }
 
-type User = {
-  personalData: PersonalData;
-  profileData: ProfileData;
-  profilePics: ProfilePic[];
-  address: Address;
-  hobbies: string[];
-};
+  if (Array.isArray(value)) {
+    return value as string[];
+  }
+
+  return [] as string[];
+});
+
+const getUserProfileSchema = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+  data: z.object({
+    personalData: personalDataSchema,
+    profileData: profileDataSchema,
+    profilePics: z.array(profilePicSchema),
+    address: addressSchema,
+    hobbies: hobbiesSchema,
+  }),
+});
+type UserProfileState = z.infer<typeof getUserProfileSchema>;
 
 export function useGetUserProfile() {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const { data: userProfileState, isLoading } = useAxiosGet<UserProfileState>({
+    url: '/profile/me',
+    validationSchema: getUserProfileSchema,
+    initialData: null,
+    showSnackbarOnSuccess: false,
+  });
 
-  const axiosInstance = useAxiosPrivate();
-
-  const getUserProfile = React.useCallback(
-    (abortController: AbortController) => {
-      setIsLoading(true);
-      axiosInstance
-        .get('/profile/me', {
-          signal: abortController.signal,
-        })
-        .then((response) => {
-          if (response.data.data) {
-            setUser(response.data.data);
-            toast.success(response.data.message);
-          } else {
-            throw new Error(`Response format is not valid`);
-          }
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            if (error.name !== 'CanceledError') {
-              console.log(error);
-              const errorMessage =
-                error instanceof AxiosError
-                  ? error?.response?.data?.message ||
-                    error?.message ||
-                    'Unknown Error'
-                  : 'Unknown Error';
-              toast.error(errorMessage);
-              console.log(error);
-            }
-          } else {
-            console.log(error);
-            toast.error('Something went very wrong');
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    },
-    [axiosInstance]
-  );
-
-  React.useEffect(() => {
-    const abortController = new AbortController();
-
-    getUserProfile(abortController);
-
-    return () => {
-      abortController.abort();
-    };
-  }, [getUserProfile]);
-
-  return { isLoading, user };
+  return { isLoading, user: userProfileState?.data };
 }

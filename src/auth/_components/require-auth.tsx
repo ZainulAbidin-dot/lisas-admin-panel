@@ -1,35 +1,37 @@
+import { LogOutIcon } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { AppLayout } from '@/components/shared/app-layout';
+import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
 
-const RequireAuth = ({
-  requireSubscription,
-}: {
-  requireSubscription: boolean;
-}) => {
-  const { token } = useAuthStore();
+import { useLogout } from '../_hooks/use-logout';
 
+const RequireAuth = () => {
+  const token = useAuthStore((state) => state.token);
+  const logout = useLogout();
   const location = useLocation();
-
-  const userHasSubscription = token?.decoded.hasActiveSubscription;
 
   if (!token) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  // User has token and page doesnot require subscription
-  if (!requireSubscription) {
+  if (token.decoded.role !== 'admin') {
     return (
-      <AppLayout>
-        <Outlet />
-      </AppLayout>
+      <div className="flex h-screen items-center justify-center bg-gray-100">
+        <div className="space-y-2 rounded-lg bg-white p-6 text-center shadow-lg">
+          <h1 className="text-2xl font-semibold text-red-600">Access Denied</h1>
+          <p className="mt-2 text-gray-600">
+            This page is for admins only. Please contact support if you believe
+            this is a mistake.
+          </p>
+          <Button variant="ghost" onClick={logout} title="Logout">
+            <LogOutIcon />
+            <span>Logout</span>
+          </Button>
+        </div>
+      </div>
     );
-  }
-
-  // user has token, page require subscription and user doesnot have one
-  if (!userHasSubscription) {
-    return <Navigate to="/subscription" />;
   }
 
   return (
