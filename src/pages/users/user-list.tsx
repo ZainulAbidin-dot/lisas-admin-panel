@@ -81,14 +81,14 @@ export function UserList() {
     data: usersState,
     setData,
   } = useAxiosGet<z.infer<typeof usersSchema>>({
-    url: `/users?page=${currentPage}&page-size=${pageSize}`,
+    url: `/admin/users?page=${currentPage}&page-size=${pageSize}`,
     validationSchema: usersSchema,
     initialData: null,
   });
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`/users/${id}`);
+      await axios.delete(`/admin/users/${id}`);
 
       setData((prev) => {
         if (!prev) return prev;

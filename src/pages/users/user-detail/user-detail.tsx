@@ -100,17 +100,19 @@ export function UserDetail() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const { isDeleting, deleteFn } = useAxiosDelete({
-    url: `/users/${id}`,
+    url: `/admin/users/${id}`,
     showSnackbarOnSuccess: false,
   });
 
   const { data, setData, isLoading } = useAxiosGet<TGetUserDetailSchema>({
-    url: `/users/${id}`,
+    url: `/admin/users/${id}`,
     validationSchema: getUserDetailSchema,
     initialData: null,
   });
 
   const axios = useAxiosPrivate();
+
+  if (!id) return null;
 
   const onChangeVerificationStatus = async () => {
     if (!data?.data.profileData) return;
@@ -118,7 +120,7 @@ export function UserDetail() {
     try {
       setIsUpdating(true);
 
-      await axios.patch(`/users/${id}/verification-status`, {
+      await axios.patch(`/admin/users/${id}/verification-status`, {
         status: data.data.profileData.isVerified ? false : true,
         userId: id,
       });
@@ -181,7 +183,7 @@ export function UserDetail() {
             />
           </div>
 
-          <ProfilePictureManager profilePictures={user.profilePics} />
+          <ProfilePictureManager initialImages={user.profilePics} userId={id} />
 
           <UpdatePersonalInfo personalInfo={user.personalData} />
 

@@ -43,7 +43,7 @@ export function SubscriptionList() {
 
   const { isLoading, data: subscriptionsState } =
     useAxiosGet<TSubscriptionsSchema>({
-      url: `/subscriptions?page=${currentPage}`,
+      url: `/admin/subscriptions?page=${currentPage}`,
       initialData: null,
       validationSchema: subscriptionsSchema,
     });

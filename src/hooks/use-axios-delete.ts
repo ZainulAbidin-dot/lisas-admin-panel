@@ -7,10 +7,13 @@ import { handleAxiosError } from '@/lib/handle-api-error';
 
 export function useAxiosDelete({
   url,
+  onSuccessCallback,
+
   showSnackbarOnSuccess = false,
   showSnackbarOnError = false,
 }: {
   url: string;
+  onSuccessCallback?: () => void;
 
   showSnackbarOnSuccess?: boolean;
   showSnackbarOnError?: boolean;
@@ -20,20 +23,22 @@ export function useAxiosDelete({
   const [error, setError] = React.useState<string | null>(null);
 
   const deleteFn = React.useCallback(
-    (abortController?: AbortController) => {
+    (data: Record<string, unknown>) => {
       setIsDeleting(true);
       setError(null);
 
       return axiosInstance
-        .delete(url, {
-          signal: abortController?.signal,
-        })
+        .delete(url, { data })
         .then(({ data }) => {
           if (showSnackbarOnSuccess && data.message) {
             toast.success(data.message);
           }
 
           setIsDeleting(false);
+
+          if (onSuccessCallback) {
+            onSuccessCallback();
+          }
 
           return true;
         })
@@ -55,7 +60,13 @@ export function useAxiosDelete({
           setIsDeleting(false);
         });
     },
-    [url, showSnackbarOnSuccess, showSnackbarOnError, axiosInstance]
+    [
+      url,
+      showSnackbarOnSuccess,
+      showSnackbarOnError,
+      axiosInstance,
+      onSuccessCallback,
+    ]
   );
 
   return {
